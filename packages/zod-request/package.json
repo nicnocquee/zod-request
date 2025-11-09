@@ -24,9 +24,9 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/zod-request.ts"
+    ".": "./dist/zod-request.js"
   },
-  "main": "./src/zod-request.ts",
+  "main": "./dist/zod-request.js",
   "files": [
     "dist"
   ],
