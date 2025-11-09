@@ -1,0 +1,45 @@
+{
+  "name": "@nicnocquee/zod-request",
+  "description": "A library for validating HTTP requests using Zod.",
+  "keywords": [
+    "zod",
+    "request",
+    "validation",
+    "http",
+    "api"
+  ],
+  "author": "Nico Prananta <hi@nico.fyi>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicnocquee/zod-request"
+  },
+  "homepage": "https://github.com/nicnocquee/zod-request",
+  "bugs": {
+    "url": "https://github.com/nicnocquee/zod-request/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/zod-request.ts"
+  },
+  "main": "./src/zod-request.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.0.8"
+  }
+}

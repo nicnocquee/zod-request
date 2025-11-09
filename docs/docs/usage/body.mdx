@@ -1,0 +1,191 @@
+---
+title: Validating Request Body
+---
+
+You can validate the body of a request using the `bodySchema` function. It supports JSON, FormData (multipart/form-data and application/x-www-form-urlencoded), and plain text bodies. **If the validation is successful, the returned validated request will have a `bodyObject` property that contains the validated body.**
+
+## JSON Body
+
+Validate JSON request body by providing a `json` schema:
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  json: z.object({
+    name: z.string(),
+    age: z.number(),
+  }),
+});
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  // bodyObject contains the validated body for direct property access
+  const bodyObject = validatedRequest.bodyObject; // { name: string, age: number }
+  const name = bodyObject.name; // string
+  const age = bodyObject.age; // number
+}
+```
+
+The function automatically detects `application/json` content type (including with charset, e.g., `application/json; charset=utf-8`).
+
+## FormData Body
+
+Validate form data (both `multipart/form-data` and `application/x-www-form-urlencoded`) by providing a `formData` schema:
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  formData: z.object({
+    name: z.string(),
+    email: z.string().email(),
+  }),
+});
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  // bodyObject contains the validated body for direct property access
+  const bodyObject = validatedRequest.bodyObject; // { name: string, email: string }
+  const name = bodyObject.name; // string
+  const email = bodyObject.email; // string
+}
+```
+
+**Note:** Non-string form values (like File objects) are converted to `undefined` in the parsed object.
+
+**Note:** If FormData has multiple values for the same key, the behavior is non-deterministic. The implementation iterates through `FormData.entries()`, and the last value encountered during iteration will be used. However, the iteration order may vary by environment, so you should avoid relying on a specific value when multiple values exist for the same key.
+
+## Text Body
+
+Validate plain text bodies by providing a `text` schema:
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  text: z.string().min(10),
+});
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  const { text } = validatedRequest.bodyObject; // string
+}
+```
+
+## Multiple Body Types
+
+You can provide multiple body schemas. The function will check them in order: JSON first, then FormData, then text:
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  json: z.object({ type: z.literal("json") }),
+  formData: z.object({ type: z.literal("form") }),
+  text: z.string(),
+});
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  const { type } = validatedRequest.bodyObject; // type depends on Content-Type
+}
+```
+
+## Body Object
+
+When body validation succeeds, the validated result includes both `body` (the original request body) and `bodyObject` (the validated body for direct property access):
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  json: z.object({ value: z.string() }),
+});
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  // body contains the original request body (ReadableStream | null)
+  // Note: The body stream may be consumed after validation
+  const originalBody = validatedRequest.body; // ReadableStream<Uint8Array> | null
+
+  // bodyObject contains the validated body for direct property access
+  // When validation succeeds, bodyObject is guaranteed to be defined
+  const bodyObject = validatedRequest.bodyObject; // { value: string }
+  const value = bodyObject.value; // string (no optional chaining needed)
+}
+```
+
+**Note:** `bodyObject` is only defined when a body schema is provided to `requestSchema`. It contains the unwrapped body value, allowing direct property access without needing to access a nested `body` property.
+
+## Handling Missing Body
+
+If no matching content type is found or no body schemas are provided, `body` will be `undefined`:
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  json: z.object({ value: z.string() }),
+});
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  // GET requests typically don't have bodies
+  if (validatedRequest.bodyObject) {
+    // Handle validated body
+  }
+}
+```
+
+## Error Handling
+
+Invalid body data will throw a Zod validation error:
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  json: z.object({
+    age: z.number(),
+  }),
+});
+
+export async function POST(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      body,
+    }).parseAsync(request);
+  } catch (error) {
+    // Handle validation error
+    if (error instanceof z.ZodError) {
+      // Invalid body format
+    }
+  }
+}
+```

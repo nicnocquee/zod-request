@@ -1,0 +1,168 @@
+---
+title: Validating Protocol
+---
+
+You can validate the protocol of a request using protocol schemas. The protocol is extracted from the request URL (e.g., "http" or "https").
+
+## Using z.literal
+
+The simplest way is to use Zod's `z.literal()`:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    protocol: z.literal("https"),
+  }).parseAsync(request);
+
+  const protocol = validatedRequest.protocol; // "https"
+}
+```
+
+## Using protocolSchema Helper
+
+For better type safety and compile-time validation, use the `protocolSchema` helper:
+
+```tsx
+import { requestSchema, protocolSchema } from "zod-request";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    protocol: protocolSchema("https"),
+  }).parseAsync(request);
+
+  const protocol = validatedRequest.protocol; // "https"
+}
+```
+
+The `protocolSchema` function ensures only valid protocols are used and provides better TypeScript inference.
+
+## Using protocolEnumSchema
+
+To accept any valid protocol, use `protocolEnumSchema`:
+
+```tsx
+import { requestSchema, protocolEnumSchema } from "zod-request";
+
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    protocol: protocolEnumSchema,
+  }).parseAsync(request);
+
+  // Protocol can be: "http" or "https"
+  const protocol = validatedRequest.protocol;
+}
+```
+
+## Supported Protocols
+
+The library supports the standard web protocols:
+
+- **`http`** - Hypertext Transfer Protocol
+- **`https`** - Hypertext Transfer Protocol Secure
+
+See [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/URL/protocol) for more details.
+
+## Protocol Validation with Other Validations
+
+You can combine protocol validation with other request validations:
+
+```tsx
+import {
+  requestSchema,
+  protocolSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+  requestModeSchema,
+} from "zod-request";
+import { z } from "zod";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    protocol: protocolSchema("https"),
+    method: httpMethodSchema("POST"),
+    mode: requestModeSchema("cors"),
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+  }).parseAsync(request);
+
+  const protocol = validatedRequest.protocol; // "https"
+  const method = validatedRequest.method; // "POST"
+  const mode = validatedRequest.mode; // "cors"
+  const filter = validatedRequest.searchParamsObject?.filter;
+  const name = validatedRequest.bodyObject?.name;
+  const auth = validatedRequest.headers?.authorization;
+}
+```
+
+## Error Handling
+
+If the request protocol doesn't match the schema, a validation error will be thrown:
+
+```tsx
+import { requestSchema, protocolSchema } from "zod-request";
+
+export async function handler(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      protocol: protocolSchema("https"),
+    }).parseAsync(request);
+  } catch (error) {
+    // Request protocol was not "https"
+    // Handle error appropriately
+  }
+}
+```
+
+## Protocol Extraction
+
+**Note:** The protocol is automatically extracted from the request URL. The URL protocol includes a colon (e.g., "https:"), but the validated protocol value is returned without the colon (e.g., "https"). This matches the standard web protocol format.
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+// Request with "https://example.com" will have protocol "https"
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    protocol: z.literal("https"), // No colon needed
+  }).parseAsync(request);
+
+  const protocol = validatedRequest.protocol; // "https" (without colon)
+}
+```
+
+## Security Considerations
+
+When building secure applications, you should typically require HTTPS:
+
+```tsx
+import { requestSchema, protocolSchema } from "zod-request";
+
+export async function secureHandler(request: Request) {
+  // Enforce HTTPS for security
+  const validatedRequest = await requestSchema({
+    protocol: protocolSchema("https"),
+  }).parseAsync(request);
+
+  // Only HTTPS requests will pass validation
+  // HTTP requests will be rejected
+}
+```

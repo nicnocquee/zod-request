@@ -1,0 +1,15 @@
+{
+  "title": "Request Validation",
+  "icon": "MyIcon",
+  "pages": [
+    "search-params",
+    "body",
+    "headers",
+    "method",
+    "mode",
+    "protocol",
+    "hostname",
+    "pathname"
+  ],
+  "defaultOpen": true
+}

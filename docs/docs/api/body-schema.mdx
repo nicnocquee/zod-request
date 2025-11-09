@@ -1,0 +1,85 @@
+---
+title: bodySchema
+---
+
+Creates a Zod schema that validates the body of a request. Supports JSON, FormData (multipart/form-data and application/x-www-form-urlencoded), and plain text bodies.
+
+## Signature
+
+```typescript
+function bodySchema<T extends {
+  json?: z.ZodTypeAny;
+  formData?: z.ZodTypeAny;
+  text?: z.ZodTypeAny;
+}>(schemas: T): z.ZodType<{ body: BodyType }>
+```
+
+## Parameters
+
+- `schemas` (required): An object with one or more of:
+  - `json`: Zod schema for JSON request bodies
+  - `formData`: Zod schema for form data (multipart/form-data or application/x-www-form-urlencoded)
+  - `text`: Zod schema for plain text request bodies
+
+## Returns
+
+A preprocessed Zod schema that validates the request body based on the Content-Type header.
+
+## JSON Body
+
+```tsx
+import { bodySchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const body = bodySchema({
+  json: z.object({
+    name: z.string(),
+    age: z.number(),
+  }),
+});
+
+export async function POST(request: Request) {
+  const validated = await requestSchema({
+    body,
+  }).parseAsync(request);
+
+  // bodyObject contains the validated body for direct property access
+  const bodyObject = validated.bodyObject; // { name: string, age: number }
+  const name = bodyObject.name; // string
+  const age = bodyObject.age; // number
+}
+```
+
+## FormData Body
+
+```tsx
+const body = bodySchema({
+  formData: z.object({
+    name: z.string(),
+    email: z.string().email(),
+  }),
+});
+```
+
+Supports both `multipart/form-data` and `application/x-www-form-urlencoded` content types.
+
+## Text Body
+
+```tsx
+const body = bodySchema({
+  text: z.string().min(1),
+});
+```
+
+## Content-Type Detection
+
+The function automatically detects the content type from the `Content-Type` header:
+- `application/json` → uses `json` schema
+- `multipart/form-data` or `application/x-www-form-urlencoded` → uses `formData` schema
+- Other content types → uses `text` schema (if provided)
+
+## See Also
+
+- [Usage Guide: Validating Request Body](../usage/body) - Detailed usage examples
+- [`requestSchema`](./request-schema) - Complete request validation
+

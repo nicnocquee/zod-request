@@ -1,0 +1,147 @@
+---
+title: Validating HTTP Method
+---
+
+You can validate the HTTP method of a request using method schemas. The library provides several helpers for method validation.
+
+## Using z.literal
+
+The simplest way is to use Zod's `z.literal()`:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    method: z.literal("GET"),
+  }).parseAsync(request);
+
+  const method = validatedRequest.method; // "GET"
+}
+```
+
+## Using httpMethodSchema Helper
+
+For better type safety and compile-time validation, use the `httpMethodSchema` helper:
+
+```tsx
+import { requestSchema, httpMethodSchema } from "zod-request";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    method: httpMethodSchema("POST"),
+  }).parseAsync(request);
+
+  const method = validatedRequest.method; // "POST"
+}
+```
+
+The `httpMethodSchema` function ensures only valid HTTP methods are used and provides better TypeScript inference.
+
+## Using httpMethodEnumSchema
+
+To accept any standard HTTP method, use `httpMethodEnumSchema`:
+
+```tsx
+import { requestSchema, httpMethodEnumSchema } from "zod-request";
+
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    method: httpMethodEnumSchema,
+  }).parseAsync(request);
+
+  // Method can be: GET, POST, PUT, PATCH, DELETE, HEAD, or OPTIONS
+  const method = validatedRequest.method;
+}
+```
+
+## Supported HTTP Methods
+
+The library supports all standard HTTP methods:
+
+- `GET`
+- `POST`
+- `PUT`
+- `PATCH`
+- `DELETE`
+- `HEAD`
+- `OPTIONS`
+
+## Method Validation with Other Validations
+
+You can combine method validation with other request validations:
+
+```tsx
+import {
+  requestSchema,
+  httpMethodSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+} from "zod-request";
+import { z } from "zod";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    method: httpMethodSchema("POST"),
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+  }).parseAsync(request);
+
+  const method = validatedRequest.method; // "POST"
+  const filter = validatedRequest.searchParamsObject?.filter;
+  const name = validatedRequest.body?.name;
+  const auth = validatedRequest.headers?.authorization;
+}
+```
+
+## Error Handling
+
+If the request method doesn't match the schema, a validation error will be thrown:
+
+```tsx
+import { requestSchema, httpMethodSchema } from "zod-request";
+
+export async function handler(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      method: httpMethodSchema("POST"),
+    }).parseAsync(request);
+  } catch (error) {
+    // Request method was not "POST"
+    // Handle error appropriately
+  }
+}
+```
+
+## Method Normalization
+
+**Note:** The Request API normalizes HTTP methods to uppercase. So if a request is created with `method: "post"` (lowercase), it will be normalized to `"POST"` (uppercase) automatically. Your schema should always use uppercase method names.
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+// Request with lowercase "post" will be normalized to "POST"
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    method: z.literal("POST"), // Always use uppercase
+  }).parseAsync(request);
+
+  const method = validatedRequest.method; // "POST" (always uppercase)
+}
+```

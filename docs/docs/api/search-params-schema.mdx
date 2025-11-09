@@ -1,0 +1,82 @@
+---
+title: searchParamsSchema
+---
+
+Creates a Zod schema that validates the search params (URL query parameters) of a request.
+
+## Signature
+
+```typescript
+function searchParamsSchema<T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>
+): z.ZodType<z.infer<z.ZodObject<T>>>
+```
+
+## Parameters
+
+- `schema` (required): A Zod object schema defining the expected search parameters
+
+## Returns
+
+A preprocessed Zod schema that validates search parameters from a request URL.
+
+## Basic Usage
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    name: z.string(),
+    age: z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validated = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  const name = validated.searchParamsObject?.name; // string
+  const age = validated.searchParamsObject?.age; // string
+}
+```
+
+## Optional Parameters
+
+Use `.optional()` to make search parameters optional:
+
+```tsx
+const searchParams = searchParamsSchema(
+  z.object({
+    name: z.string().optional(),
+    page: z.string().optional(),
+  })
+);
+```
+
+## Array Parameters
+
+To accept multiple values for the same parameter, use an array schema:
+
+```tsx
+const searchParams = searchParamsSchema(
+  z.object({
+    tags: z.array(z.string()), // Accepts ?tags=foo&tags=bar
+  })
+);
+```
+
+## Behavior
+
+- Converts `URLSearchParams` or string input to a plain object
+- Handles multiple values for array schemas
+- Returns `undefined` for missing optional parameters
+- Throws an error if multiple values are found for a non-array schema
+
+## See Also
+
+- [Usage Guide: Validating Search Params](../usage/search-params) - Detailed usage examples
+- [`requestSchema`](./request-schema) - Complete request validation
+

@@ -1,0 +1,186 @@
+---
+title: Validating Headers
+---
+
+You can validate the headers of a request using the `headersSchema` function.
+
+## Basic Usage
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    authorization: z.string(),
+    "content-type": z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  const auth = validatedRequest.headers?.authorization; // string
+  const contentType = validatedRequest.headers?.["content-type"]; // string
+}
+```
+
+## Optional Headers
+
+Use `.optional()` to make headers optional:
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    authorization: z.string().optional(),
+    "x-api-key": z.string().optional(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  // Missing headers will be undefined
+  const auth = validatedRequest.headers?.authorization; // string | undefined
+  const apiKey = validatedRequest.headers?.["x-api-key"]; // string | undefined
+}
+```
+
+## Header Transformations
+
+You can transform header values using Zod's transformation methods:
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    "x-api-version": z.string().transform((val) => Number(val)),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  const version = validatedRequest.headers?.["x-api-version"]; // number
+}
+```
+
+## Custom Header Names
+
+Header names can include hyphens and other special characters. Use bracket notation to access them:
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    "x-custom-header": z.string(),
+    "user-agent": z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  const custom = validatedRequest.headers?.["x-custom-header"];
+  const userAgent = validatedRequest.headers?.["user-agent"];
+}
+```
+
+## Case Sensitivity
+
+**Note:** Headers are case-insensitive according to HTTP standards. The `Headers.get()` method is case-insensitive, so `Authorization` and `authorization` refer to the same header. However, the schema keys you define will be used as-is in the result object.
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    Authorization: z.string(), // Schema key
+  })
+);
+
+export async function GET(request: Request) {
+  // Request may have "authorization" (lowercase)
+  const validatedRequest = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  // Result will use the schema key: "Authorization"
+  const auth = validatedRequest.headers?.Authorization;
+}
+```
+
+## Only Defined Headers
+
+The function only extracts headers that are defined in your schema. Other headers in the request are ignored:
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    authorization: z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  // Request may have many headers, but only "authorization" is extracted
+  const validatedRequest = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  // Only authorization is in the result
+  const auth = validatedRequest.headers?.authorization;
+}
+```
+
+## Error Handling
+
+Invalid header values will throw a Zod validation error:
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    "x-api-version": z.string().transform((val) => {
+      const num = Number(val);
+      if (Number.isNaN(num)) {
+        throw new Error("Invalid version number");
+      }
+      return num;
+    }),
+  })
+);
+
+export async function GET(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      headers,
+    }).parseAsync(request);
+  } catch (error) {
+    // Handle validation error
+    if (error instanceof z.ZodError) {
+      // Invalid header format
+    }
+  }
+}
+```

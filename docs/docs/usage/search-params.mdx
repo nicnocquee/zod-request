@@ -1,0 +1,326 @@
+---
+title: Validating Search Params
+---
+
+You can validate the search params (URL query parameters) of a request using the `searchParamsSchema` function. **If the validation is successful, the returned validated request will have a `searchParamsObject` property that contains the validated search parameters.**
+
+## Basic Usage
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    name: z.string(),
+    age: z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  // the searchParamsObject property contains the validated search parameters
+  const name = validatedRequest.searchParamsObject.name; // string
+  const age = validatedRequest.searchParamsObject.age; // string
+}
+```
+
+## Optional Parameters
+
+Use `.optional()` to make search parameters optional:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    name: z.string().optional(),
+    page: z.string().optional(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  // Missing parameters will be undefined
+  const name = validatedRequest.searchParamsObject.name; // string | undefined
+  const page = validatedRequest.searchParamsObject.page; // string | undefined
+}
+```
+
+## Parameter Transformations
+
+You can transform search parameter values using Zod's transformation methods:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    age: z.string().transform((val) => Number(val)),
+    tags: z.string().transform((val) => val.split(",")),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  const age = validatedRequest.searchParamsObject.age; // number
+  const tags = validatedRequest.searchParamsObject.tags; // string[]
+}
+```
+
+## Type Coercion
+
+Since URL search parameters are always strings, you may need to coerce them to other types:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    page: z.string().transform(Number), // Convert to number
+    active: z.string().transform((val) => val === "true"), // Convert to boolean
+    ids: z.string().transform((val) => val.split(",").map(Number)), // Convert to number array
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  const page = validatedRequest.searchParamsObject.page; // number
+  const active = validatedRequest.searchParamsObject.active; // boolean
+  const ids = validatedRequest.searchParamsObject.ids; // number[]
+}
+```
+
+## Validation Rules
+
+Apply Zod validation rules to search parameters:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    email: z.string().email(),
+    age: z.string().regex(/^\d+$/).transform(Number),
+    limit: z.string().transform(Number).pipe(z.number().min(1).max(100)),
+  })
+);
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  const email = validatedRequest.searchParamsObject.email; // Valid email string
+  const age = validatedRequest.searchParamsObject.age; // Number (validated as digits)
+  const limit = validatedRequest.searchParamsObject.limit; // Number between 1-100
+}
+```
+
+## Empty Search Params
+
+The function handles empty search params gracefully:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    name: z.string().optional(),
+  })
+);
+
+export async function GET(request: Request) {
+  // Works even if URL has no query string: /api/users
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  const name = validatedRequest.searchParamsObject.name; // undefined
+}
+```
+
+## Special Characters and URL Encoding
+
+The function automatically handles URL-encoded special characters:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    query: z.string(),
+    value: z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  // URL: /api/search?query=hello%20world&value=a%2Bb%3Dc%26d
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  const query = validatedRequest.searchParamsObject.query; // "hello world"
+  const value = validatedRequest.searchParamsObject.value; // "a+b=c&d"
+}
+```
+
+## Multiple Values for Same Key
+
+If a URL has multiple values for the same parameter, you must use an array schema. Otherwise, a validation error will be thrown:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+// ❌ This will throw an error if multiple values exist
+const searchParams = searchParamsSchema(
+  z.object({
+    tag: z.string(), // Single value schema
+  })
+);
+
+// ✅ Use an array schema to accept multiple values
+const searchParamsWithArray = searchParamsSchema(
+  z.object({
+    tag: z.array(z.string()), // Array schema
+  })
+);
+
+export async function GET(request: Request) {
+  // URL: /api/posts?tag=first&tag=second
+  const validatedRequest = await requestSchema({
+    searchParams: searchParamsWithArray,
+  }).parseAsync(request);
+
+  // All values are extracted as an array
+  const tags = validatedRequest.searchParamsObject.tag; // ["first", "second"]
+}
+```
+
+Use `z.string()` if you want to make sure that there is only one value for the key.
+
+**Important:**
+
+- If multiple values exist and the schema is **not** an array, a validation error is thrown
+- If multiple values exist and the schema **is** an array, all values are returned as an array
+- If a single value exists and the schema is an array, it's returned as an array with one element
+- If no value exists and the schema is an optional array, it returns `undefined`
+
+## Only Defined Parameters
+
+The function only extracts search parameters that are defined in your schema. Other parameters in the URL are ignored:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    name: z.string(),
+  })
+);
+
+export async function GET(request: Request) {
+  // URL: /api/users?name=John&extra=value&another=param
+  const validatedRequest = await requestSchema({
+    searchParams,
+  }).parseAsync(request);
+
+  // Only "name" is extracted, "extra" and "another" are ignored
+  const name = validatedRequest.searchParamsObject.name; // "John"
+}
+```
+
+## Error Handling
+
+Invalid search parameter values will throw a Zod validation error:
+
+```tsx
+import { searchParamsSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const searchParams = searchParamsSchema(
+  z.object({
+    age: z.string().transform((val) => {
+      const num = Number(val);
+      if (Number.isNaN(num)) {
+        throw new Error("Invalid number");
+      }
+      return num;
+    }),
+  })
+);
+
+export async function GET(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      searchParams,
+    }).parseAsync(request);
+  } catch (error) {
+    // Handle validation error
+    if (error instanceof z.ZodError) {
+      // Invalid search parameter format
+    }
+  }
+}
+```
+
+## Combining with Other Validations
+
+You can combine search params validation with other request validations:
+
+```tsx
+import {
+  searchParamsSchema,
+  requestSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+} from "zod-request";
+import { z } from "zod";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+    method: httpMethodSchema("POST"),
+  }).parseAsync(request);
+
+  const filter = validatedRequest.searchParamsObject.filter;
+  const name = validatedRequest.body.name;
+  const auth = validatedRequest.headers.authorization;
+  const method = validatedRequest.method;
+}
+```

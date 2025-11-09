@@ -1,0 +1,269 @@
+---
+title: Validating Pathname
+---
+
+You can validate the pathname of a request using string schemas. The pathname is extracted from the request URL (e.g., "/api/users" or "/api/posts/123").
+
+## Using z.literal
+
+The simplest way is to use Zod's `z.literal()`:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    pathname: z.literal("/api/users"),
+  }).parseAsync(request);
+
+  const pathname = validatedRequest.pathname; // "/api/users"
+}
+```
+
+## Using z.string()
+
+You can use any string schema to validate the pathname:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    pathname: z.string(),
+  }).parseAsync(request);
+
+  const pathname = validatedRequest.pathname; // e.g., "/api/users"
+}
+```
+
+## Using String Validation Methods
+
+You can use Zod's string validation methods to validate pathnames:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  // Validate pathname contains "api"
+  const validatedRequest = await requestSchema({
+    pathname: z.string().includes("api"),
+  }).parseAsync(request);
+
+  const pathname = validatedRequest.pathname;
+}
+```
+
+## Using Regular Expressions
+
+You can use regex patterns to validate pathnames:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  // Validate pathname matches pattern for user IDs
+  const validatedRequest = await requestSchema({
+    pathname: z.string().regex(/^\/api\/users\/\d+$/),
+  }).parseAsync(request);
+
+  const pathname = validatedRequest.pathname;
+}
+```
+
+## Pathname Validation with Other Validations
+
+You can combine pathname validation with other request validations:
+
+```tsx
+import {
+  requestSchema,
+  protocolSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+  requestModeSchema,
+} from "zod-request";
+import { z } from "zod";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    pathname: z.literal("/api/users"),
+    protocol: protocolSchema("https"),
+    method: httpMethodSchema("POST"),
+    mode: requestModeSchema("cors"),
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+  }).parseAsync(request);
+
+  const pathname = validatedRequest.pathname; // "/api/users"
+  const protocol = validatedRequest.protocol; // "https"
+  const method = validatedRequest.method; // "POST"
+  const mode = validatedRequest.mode; // "cors"
+  const filter = validatedRequest.searchParamsObject?.filter;
+  const name = validatedRequest.bodyObject?.name;
+  const auth = validatedRequest.headers?.authorization;
+}
+```
+
+## Error Handling
+
+If the request pathname doesn't match the schema, a validation error will be thrown:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      pathname: z.literal("/api/users"),
+    }).parseAsync(request);
+  } catch (error) {
+    // Request pathname was not "/api/users"
+    // Handle error appropriately
+  }
+}
+```
+
+## Pathname Extraction
+
+**Note:** The pathname is automatically extracted from the request URL. The pathname does not include query parameters or hash fragments. For example, a URL like `https://example.com/api/users?page=1#section` will have a pathname of `"/api/users"` (without the query or hash).
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+// Request with "https://example.com/api/users?page=1" will have pathname "/api/users"
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    pathname: z.literal("/api/users"), // Query params are not included
+  }).parseAsync(request);
+
+  const pathname = validatedRequest.pathname; // "/api/users" (without query)
+}
+```
+
+## Security Considerations
+
+When building secure applications, you should validate pathnames to ensure requests are going to expected routes:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function secureHandler(request: Request) {
+  // Enforce specific pathname for security
+  const validatedRequest = await requestSchema({
+    pathname: z.literal("/api/users"),
+  }).parseAsync(request);
+
+  // Only requests to "/api/users" will pass validation
+  // Requests to other pathnames will be rejected
+}
+```
+
+You can also use pattern matching to allow multiple routes:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  // Allow any API route
+  const validatedRequest = await requestSchema({
+    pathname: z.string().startsWith("/api/"),
+  }).parseAsync(request);
+
+  // Matches: /api/users, /api/posts, /api/comments, etc.
+  // Does not match: /users, /posts, etc.
+}
+```
+
+## Common Use Cases
+
+### Validating API Endpoints
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function apiHandler(request: Request) {
+  const validatedRequest = await requestSchema({
+    pathname: z.literal("/api/users"),
+    protocol: z.literal("https"),
+  }).parseAsync(request);
+
+  // Only HTTPS requests to "/api/users" are allowed
+}
+```
+
+### Allowing Multiple Routes
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    pathname: z.enum([
+      "/api/users",
+      "/api/posts",
+      "/api/comments",
+    ]),
+  }).parseAsync(request);
+
+  // Allows requests to any of these routes
+}
+```
+
+### Validating Dynamic Routes
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  // Only allow routes matching the pattern /api/users/{id}
+  const validatedRequest = await requestSchema({
+    pathname: z.string().regex(/^\/api\/users\/\d+$/),
+  }).parseAsync(request);
+
+  // Matches: /api/users/123, /api/users/456
+  // Does not match: /api/users, /api/posts/123
+}
+```
+
+### Validating Routes with Includes
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  // Only allow API routes
+  const validatedRequest = await requestSchema({
+    pathname: z.string().includes("api"),
+  }).parseAsync(request);
+
+  // Matches: /api/users, /api/posts, /v1/api/users
+}
+```
+

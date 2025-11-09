@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    // Target modern ES version compatible with both browser and Node.js
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+
+    // Module settings for ESM compatibility
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // Output settings
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Type checking
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Interop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+
+    // Other
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "incremental": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

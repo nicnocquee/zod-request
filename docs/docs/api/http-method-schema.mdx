@@ -1,0 +1,89 @@
+---
+title: httpMethodSchema
+---
+
+Creates a type-safe Zod literal schema for a specific HTTP method value.
+
+## Signature
+
+```typescript
+function httpMethodSchema<T extends HttpMethod>(method: T): z.ZodLiteral<T>;
+```
+
+## Parameters
+
+- `method` (required): A valid HTTP method (`"GET"`, `"POST"`, `"PUT"`, `"PATCH"`, `"DELETE"`, `"HEAD"`, or `"OPTIONS"`)
+
+## Returns
+
+A `z.ZodLiteral` schema that validates to the exact HTTP method value provided.
+
+## Example
+
+```tsx
+import { httpMethodSchema, requestSchema } from "zod-request";
+
+const schema = requestSchema({
+  method: httpMethodSchema("POST"),
+});
+
+export async function POST(request: Request) {
+  const validated = await schema.parseAsync(request);
+  // validated.method is "POST"
+}
+```
+
+## Type Safety
+
+TypeScript will catch invalid HTTP method values at compile time:
+
+```tsx
+// ✅ Valid - TypeScript accepts this
+httpMethodSchema("GET");
+httpMethodSchema("POST");
+
+// ❌ Invalid - TypeScript error at compile time
+httpMethodSchema("INVALID"); // Error: Argument of type '"INVALID"' is not assignable
+```
+
+## Runtime Validation
+
+The function also validates at runtime and throws an error if an invalid method is provided:
+
+```tsx
+httpMethodSchema("INVALID"); // Throws: Invalid HTTP method: "INVALID". Must be one of: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
+```
+
+## httpMethodEnumSchema
+
+A Zod enum schema that validates against all valid HTTP method values.
+
+### Signature
+
+```typescript
+const httpMethodEnumSchema: z.ZodEnum<
+  ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+>;
+```
+
+### Usage
+
+Use this when you want to accept any valid HTTP method:
+
+```tsx
+import { httpMethodEnumSchema, requestSchema } from "zod-request";
+
+const schema = requestSchema({
+  method: httpMethodEnumSchema,
+});
+
+export async function GET(request: Request) {
+  const validated = await schema.parseAsync(request);
+  // validated.method is "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS"
+}
+```
+
+### When to Use
+
+- Use `httpMethodEnumSchema` when you want to accept any valid HTTP method
+- Use `httpMethodSchema` when you need to validate a specific HTTP method value

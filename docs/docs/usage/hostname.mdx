@@ -1,0 +1,251 @@
+---
+title: Validating Hostname
+---
+
+You can validate the hostname of a request using string schemas. The hostname is extracted from the request URL (e.g., "example.com" or "api.example.com").
+
+## Using z.literal
+
+The simplest way is to use Zod's `z.literal()`:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    hostname: z.literal("example.com"),
+  }).parseAsync(request);
+
+  const hostname = validatedRequest.hostname; // "example.com"
+}
+```
+
+## Using z.string()
+
+You can use any string schema to validate the hostname:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    hostname: z.string(),
+  }).parseAsync(request);
+
+  const hostname = validatedRequest.hostname; // e.g., "example.com"
+}
+```
+
+## Using String Validation Methods
+
+You can use Zod's string validation methods to validate hostnames:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  // Validate hostname contains "api"
+  const validatedRequest = await requestSchema({
+    hostname: z.string().includes("api"),
+  }).parseAsync(request);
+
+  const hostname = validatedRequest.hostname;
+}
+```
+
+## Using Regular Expressions
+
+You can use regex patterns to validate hostnames:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  // Validate hostname starts with "api."
+  const validatedRequest = await requestSchema({
+    hostname: z.string().regex(/^api\./),
+  }).parseAsync(request);
+
+  const hostname = validatedRequest.hostname;
+}
+```
+
+## Hostname Validation with Other Validations
+
+You can combine hostname validation with other request validations:
+
+```tsx
+import {
+  requestSchema,
+  protocolSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+  requestModeSchema,
+} from "zod-request";
+import { z } from "zod";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    hostname: z.literal("api.example.com"),
+    protocol: protocolSchema("https"),
+    method: httpMethodSchema("POST"),
+    mode: requestModeSchema("cors"),
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+  }).parseAsync(request);
+
+  const hostname = validatedRequest.hostname; // "api.example.com"
+  const protocol = validatedRequest.protocol; // "https"
+  const method = validatedRequest.method; // "POST"
+  const mode = validatedRequest.mode; // "cors"
+  const filter = validatedRequest.searchParamsObject?.filter;
+  const name = validatedRequest.bodyObject?.name;
+  const auth = validatedRequest.headers?.authorization;
+}
+```
+
+## Error Handling
+
+If the request hostname doesn't match the schema, a validation error will be thrown:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      hostname: z.literal("api.example.com"),
+    }).parseAsync(request);
+  } catch (error) {
+    // Request hostname was not "api.example.com"
+    // Handle error appropriately
+  }
+}
+```
+
+## Hostname Extraction
+
+**Note:** The hostname is automatically extracted from the request URL. The hostname does not include the port number, even if the URL contains one. For example, a URL like `https://example.com:8080` will have a hostname of `"example.com"` (without the port).
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+// Request with "https://example.com:8080" will have hostname "example.com"
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    hostname: z.literal("example.com"), // Port is not included
+  }).parseAsync(request);
+
+  const hostname = validatedRequest.hostname; // "example.com" (without port)
+}
+```
+
+## Security Considerations
+
+When building secure applications, you should validate hostnames to ensure requests are coming from expected domains:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function secureHandler(request: Request) {
+  // Enforce specific hostname for security
+  const validatedRequest = await requestSchema({
+    hostname: z.literal("api.example.com"),
+  }).parseAsync(request);
+
+  // Only requests from "api.example.com" will pass validation
+  // Requests from other hostnames will be rejected
+}
+```
+
+You can also use pattern matching to allow multiple subdomains:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  // Allow any subdomain of example.com
+  const validatedRequest = await requestSchema({
+    hostname: z.string().regex(/^[a-z0-9-]+\.example\.com$/),
+  }).parseAsync(request);
+
+  // Matches: api.example.com, www.example.com, etc.
+  // Does not match: example.com, other.com, etc.
+}
+```
+
+## Common Use Cases
+
+### Validating API Endpoints
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function apiHandler(request: Request) {
+  const validatedRequest = await requestSchema({
+    hostname: z.literal("api.example.com"),
+    protocol: z.literal("https"),
+  }).parseAsync(request);
+
+  // Only HTTPS requests to api.example.com are allowed
+}
+```
+
+### Allowing Multiple Environments
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    hostname: z.enum([
+      "localhost",
+      "api.example.com",
+      "api-staging.example.com",
+    ]),
+  }).parseAsync(request);
+
+  // Allows requests from localhost, production, or staging
+}
+```
+
+### Validating Subdomains
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function handler(request: Request) {
+  // Only allow API subdomain
+  const validatedRequest = await requestSchema({
+    hostname: z.string().startsWith("api."),
+  }).parseAsync(request);
+
+  // Matches: api.example.com, api.staging.example.com
+}
+```

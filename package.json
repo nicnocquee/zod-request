@@ -1,0 +1,21 @@
+{
+  "name": "zod-request",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "start": "turbo start",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "release-action": "./scripts/release-action.sh",
+    "clean": "./scripts/clean.sh",
+    "test": "turbo test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  }
+}
