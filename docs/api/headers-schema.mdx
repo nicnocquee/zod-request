@@ -1,0 +1,84 @@
+---
+title: headersSchema
+---
+
+Creates a Zod schema that validates the headers of a request.
+
+## Signature
+
+```typescript
+function headersSchema<T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>
+): z.ZodType<z.infer<z.ZodObject<T>>>
+```
+
+## Parameters
+
+- `schema` (required): A Zod object schema defining the expected headers
+
+## Returns
+
+A preprocessed Zod schema that validates headers from a request.
+
+## Basic Usage
+
+```tsx
+import { headersSchema, requestSchema } from "zod-request";
+import { z } from "zod";
+
+const headers = headersSchema(
+  z.object({
+    authorization: z.string(),
+    "content-type": z.string().optional(),
+  })
+);
+
+export async function GET(request: Request) {
+  const validated = await requestSchema({
+    headers,
+  }).parseAsync(request);
+
+  const auth = validated.headers?.authorization; // string
+  const contentType = validated.headers?.["content-type"]; // string | undefined
+}
+```
+
+## Optional Headers
+
+Use `.optional()` to make headers optional:
+
+```tsx
+const headers = headersSchema(
+  z.object({
+    authorization: z.string(),
+    "x-custom-header": z.string().optional(),
+  })
+);
+```
+
+## Header Names
+
+Header names are case-insensitive in HTTP, but the schema uses the exact keys you provide. Access headers using the same keys:
+
+```tsx
+const headers = headersSchema(
+  z.object({
+    "Content-Type": z.string(),
+  })
+);
+
+// Access with the same key
+const contentType = validated.headers?.["Content-Type"];
+```
+
+## Behavior
+
+- Converts `Headers` or Headers-like objects to a plain object
+- Returns `undefined` for missing optional headers
+- Only extracts headers defined in the schema
+
+## See Also
+
+- [Usage Guide: Validating Headers](../usage/headers) - Detailed usage examples
+- [`requestSchema`](./request-schema) - Complete request validation
+

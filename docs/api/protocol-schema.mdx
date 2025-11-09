@@ -1,0 +1,87 @@
+---
+title: protocolSchema
+---
+
+Creates a type-safe Zod literal schema for a specific protocol value.
+
+## Signature
+
+```typescript
+function protocolSchema<T extends Protocol>(protocol: T): z.ZodLiteral<T>
+```
+
+## Parameters
+
+- `protocol` (required): A valid protocol value (`"http"` or `"https"`)
+
+## Returns
+
+A `z.ZodLiteral` schema that validates to the exact protocol value provided.
+
+## Example
+
+```tsx
+import { protocolSchema, requestSchema } from "zod-request";
+
+const schema = requestSchema({
+  protocol: protocolSchema("https"),
+});
+
+export async function GET(request: Request) {
+  const validated = await schema.parseAsync(request);
+  // validated.protocol is "https"
+}
+```
+
+## Type Safety
+
+TypeScript will catch invalid protocol values at compile time:
+
+```tsx
+// ✅ Valid - TypeScript accepts this
+protocolSchema("https");
+
+// ❌ Invalid - TypeScript error at compile time
+protocolSchema("ftp"); // Error: Argument of type '"ftp"' is not assignable
+```
+
+## Runtime Validation
+
+The function also validates at runtime and throws an error if an invalid protocol is provided:
+
+```tsx
+protocolSchema("invalid"); // Throws: Invalid protocol: "invalid". Must be one of: http, https
+```
+
+## protocolEnumSchema
+
+A Zod enum schema that validates against all valid protocol values (`"http"` and `"https"`).
+
+### Signature
+
+```typescript
+const protocolEnumSchema: z.ZodEnum<["http", "https"]>
+```
+
+### Usage
+
+Use this when you want to accept any valid protocol value:
+
+```tsx
+import { protocolEnumSchema, requestSchema } from "zod-request";
+
+const schema = requestSchema({
+  protocol: protocolEnumSchema,
+});
+
+export async function GET(request: Request) {
+  const validated = await schema.parseAsync(request);
+  // validated.protocol is "http" | "https"
+}
+```
+
+### When to Use
+
+- Use `protocolEnumSchema` when you want to accept any valid protocol
+- Use `protocolSchema` when you need to validate a specific protocol value
+

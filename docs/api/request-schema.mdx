@@ -1,0 +1,187 @@
+---
+title: requestSchema
+---
+
+Creates a comprehensive Zod schema that validates a Request object, including URL, search params, body, headers, method, mode, protocol, hostname, and pathname.
+
+## Signature
+
+```typescript
+function requestSchema<
+  TSearchParams extends z.ZodTypeAny | undefined = undefined,
+  TBody extends z.ZodTypeAny | undefined = undefined,
+  THeaders extends z.ZodTypeAny | undefined = undefined,
+  TMethod extends HttpMethodSchema | undefined = undefined,
+  TMode extends RequestModeSchema | undefined = undefined,
+  TProtocol extends ProtocolSchema | undefined = undefined,
+  THostname extends z.ZodTypeAny | undefined = undefined,
+  TPathname extends z.ZodTypeAny | undefined = undefined
+>({
+  searchParams,
+  body,
+  headers,
+  method,
+  mode,
+  protocol,
+  hostname,
+  pathname,
+}: {
+  searchParams?: TSearchParams;
+  body?: TBody;
+  headers?: THeaders;
+  method?: TMethod;
+  mode?: TMode;
+  protocol?: TProtocol;
+  hostname?: THostname;
+  pathname?: TPathname;
+}): z.ZodType<ValidatedRequest>
+```
+
+## Parameters
+
+All parameters are optional:
+
+- `searchParams`: Schema for validating URL search parameters (created with [`searchParamsSchema`](./search-params-schema))
+- `body`: Schema for validating request body (created with [`bodySchema`](./body-schema))
+- `headers`: Schema for validating request headers (created with [`headersSchema`](./headers-schema))
+- `method`: Schema for validating HTTP method (created with [`httpMethodSchema`](./http-method-schema) or [`httpMethodEnumSchema`](./http-method-enum-schema))
+- `mode`: Schema for validating Request mode (created with [`requestModeSchema`](./request-mode-schema) or [`requestModeEnumSchema`](./request-mode-enum-schema))
+- `protocol`: Schema for validating URL protocol (created with [`protocolSchema`](./protocol-schema) or [`protocolEnumSchema`](./protocol-enum-schema))
+- `hostname`: Schema for validating URL hostname (any string schema)
+- `pathname`: Schema for validating URL pathname (any string schema)
+
+## Returns
+
+A preprocessed Zod schema that validates the entire Request object. The validated result includes:
+
+- `url`: The parsed URL object
+- `searchParamsObject`: Validated search parameters (if `searchParams` provided)
+- `body`: The original request body stream (if `body` provided)
+- `bodyObject`: The validated body object for direct property access (if `body` provided)
+- `headers`: Validated headers (if `headers` provided)
+- `method`: Validated HTTP method (if `method` provided)
+- `mode`: Validated Request mode (if `mode` provided)
+- `protocol`: Validated protocol (if `protocol` provided)
+- `hostname`: Validated hostname (if `hostname` provided)
+- `pathname`: Validated pathname (if `pathname` provided)
+
+## Basic Usage
+
+```tsx
+import { requestSchema, searchParamsSchema, bodySchema } from "zod-request";
+import { z } from "zod";
+
+const schema = requestSchema({
+  searchParams: searchParamsSchema(
+    z.object({
+      page: z.string().optional(),
+    })
+  ),
+  body: bodySchema({
+    json: z.object({
+      name: z.string(),
+    }),
+  }),
+});
+
+export async function POST(request: Request) {
+  const validated = await schema.parseAsync(request);
+
+  const page = validated.searchParamsObject?.page;
+  const name = validated.bodyObject?.name;
+  const url = validated.url; // URL object
+}
+```
+
+## Complete Example
+
+```tsx
+import {
+  requestSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+  protocolSchema,
+} from "zod-request";
+import { z } from "zod";
+
+const schema = requestSchema({
+  searchParams: searchParamsSchema(
+    z.object({
+      id: z.string(),
+    })
+  ),
+  body: bodySchema({
+    json: z.object({
+      data: z.string(),
+    }),
+  }),
+  headers: headersSchema(
+    z.object({
+      authorization: z.string(),
+    })
+  ),
+  method: httpMethodSchema("POST"),
+  protocol: protocolSchema("https"),
+  hostname: z.string().includes("example.com"),
+  pathname: z.string().startsWith("/api"),
+});
+
+export async function POST(request: Request) {
+  const validated = await schema.parseAsync(request);
+
+  // All validated properties are type-safe
+  const id = validated.searchParamsObject.id; // string
+  const data = validated.bodyObject.data; // string
+  const auth = validated.headers.authorization; // string
+  const method = validated.method; // "POST"
+  const protocol = validated.protocol; // "https"
+  const hostname = validated.hostname; // string (validated to include "example.com")
+  const pathname = validated.pathname; // string (validated to start with "/api")
+}
+```
+
+## Type Safety
+
+The return type is automatically inferred based on which schemas you provide. Properties are only available if their corresponding schema is provided:
+
+```tsx
+const schema = requestSchema({
+  searchParams: searchParamsSchema(z.object({ id: z.string() })),
+  // body not provided
+});
+
+const validated = await schema.parseAsync(request);
+
+validated.searchParamsObject; // ✅ Available
+validated.bodyObject; // ❌ TypeScript error: Property 'bodyObject' does not exist
+```
+
+## Error Handling
+
+The schema throws a `ZodError` if validation fails:
+
+```tsx
+try {
+  const validated = await schema.parseAsync(request);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    // Handle validation errors
+    console.error(error.errors);
+  }
+}
+```
+
+## See Also
+
+- [Usage Guides](../usage) - Detailed guides for each validation type
+- [`searchParamsSchema`](./search-params-schema) - Validate search parameters
+- [`bodySchema`](./body-schema) - Validate request body
+- [`headersSchema`](./headers-schema) - Validate headers
+- [`httpMethodSchema`](./http-method-schema) - Validate HTTP method
+- [`requestModeSchema`](./request-mode-schema) - Validate Request mode
+- [`protocolSchema`](./protocol-schema) - Validate protocol
+- [`hostname`](../usage/hostname) - Validate hostname
+- [`pathname`](../usage/pathname) - Validate pathname
+

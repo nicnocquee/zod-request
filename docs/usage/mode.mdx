@@ -1,0 +1,147 @@
+---
+title: Validating Request Mode
+---
+
+You can validate the request mode using mode schemas. Request mode determines the CORS behavior of the request.
+
+## Using z.literal
+
+The simplest way is to use Zod's `z.literal()`:
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    mode: z.literal("cors"),
+  }).parseAsync(request);
+
+  const mode = validatedRequest.mode; // "cors"
+}
+```
+
+## Using requestModeEnumSchema
+
+To accept any valid request mode, use `requestModeEnumSchema`:
+
+```tsx
+import { requestSchema, requestModeEnumSchema } from "zod-request";
+
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    mode: requestModeEnumSchema,
+  }).parseAsync(request);
+
+  // Mode can be: "same-origin", "no-cors", "cors", or "navigate"
+  const mode = validatedRequest.mode;
+}
+```
+
+## Using requestModeSchema Helper
+
+For better type safety, use the `requestModeSchema` helper:
+
+```tsx
+import { requestSchema, requestModeSchema } from "zod-request";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({
+    mode: requestModeSchema("same-origin"),
+  }).parseAsync(request);
+
+  const mode = validatedRequest.mode; // "same-origin"
+}
+```
+
+## Supported Request Modes
+
+The library supports all valid Request mode values:
+
+- **`same-origin`** - Only allow same-origin requests
+- **`no-cors`** - Prevent CORS preflight requests
+- **`cors`** - Allow cross-origin requests (default for most requests)
+- **`navigate`** - Used internally by browsers for navigation requests
+
+See [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/Request/mode) for more details.
+
+## Mode Validation with Other Validations
+
+You can combine mode validation with other request validations:
+
+```tsx
+import {
+  requestSchema,
+  requestModeSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+} from "zod-request";
+import { z } from "zod";
+
+export async function POST(request: Request) {
+  const validatedRequest = await requestSchema({
+    mode: requestModeSchema("cors"),
+    method: httpMethodSchema("POST"),
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+  }).parseAsync(request);
+
+  const mode = validatedRequest.mode; // "cors"
+  const method = validatedRequest.method; // "POST"
+  const filter = validatedRequest.searchParamsObject?.filter;
+  const name = validatedRequest.body?.name;
+  const auth = validatedRequest.headers?.authorization;
+}
+```
+
+## Error Handling
+
+If the request mode doesn't match the schema, a validation error will be thrown:
+
+```tsx
+import { requestSchema, requestModeSchema } from "zod-request";
+
+export async function handler(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      mode: requestModeSchema("same-origin"),
+    }).parseAsync(request);
+  } catch (error) {
+    // Request mode was not "same-origin"
+    // Handle error appropriately
+  }
+}
+```
+
+## Navigate Mode
+
+**Note:** The `"navigate"` mode is special - it's used internally by browsers for navigation requests and typically cannot be set manually in the Request constructor. It's included in the enum for completeness, but in practice, you'll mostly work with `"cors"`, `"same-origin"`, and `"no-cors"`.
+
+```tsx
+import { requestSchema } from "zod-request";
+import { z } from "zod";
+
+// Most common modes in practice
+export async function handler(request: Request) {
+  const validatedRequest = await requestSchema({
+    mode: z.enum(["cors", "same-origin", "no-cors"]),
+  }).parseAsync(request);
+
+  const mode = validatedRequest.mode;
+}
+```

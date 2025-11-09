@@ -1,0 +1,14 @@
+{
+  "title": "API Reference",
+  "icon": "MyIcon",
+  "pages": [
+    "request-schema",
+    "body-schema",
+    "search-params-schema",
+    "headers-schema",
+    "protocol-schema",
+    "http-method-schema",
+    "request-mode-schema"
+  ],
+  "defaultOpen": false
+}

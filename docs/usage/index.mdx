@@ -1,0 +1,67 @@
+---
+title: Usage Guide
+---
+
+The `zod-request` library provides utilities to validate different parts of an HTTP Request using Zod schemas. This guide covers how to use each validation function.
+
+## Overview
+
+The library provides several schema builders:
+
+- **`searchParamsSchema`** - Validates URL search parameters
+- **`bodySchema`** - Validates request body (JSON, FormData, or text)
+- **`headersSchema`** - Validates request headers
+- **`requestSchema`** - Combines all validations into a single schema
+
+## Basic Example
+
+```tsx
+import { z } from "zod";
+import {
+  requestSchema,
+  searchParamsSchema,
+  bodySchema,
+  headersSchema,
+  httpMethodSchema,
+} from "zod-request";
+
+export async function POST(request: Request) {
+  const schema = requestSchema({
+    searchParams: searchParamsSchema(
+      z.object({
+        filter: z.string(),
+      })
+    ),
+    body: bodySchema({
+      json: z.object({
+        name: z.string(),
+        age: z.number(),
+      }),
+    }),
+    headers: headersSchema(
+      z.object({
+        authorization: z.string(),
+      })
+    ),
+    method: httpMethodSchema("POST"),
+  });
+
+  const validatedRequest = await schema.parseAsync(request);
+
+  // All validated data is now type-safe
+  const filter = validatedRequest.searchParamsObject?.filter;
+  const name = validatedRequest.body?.name;
+  const auth = validatedRequest.headers?.authorization;
+  const method = validatedRequest.method; // "POST"
+}
+```
+
+## Next Steps
+
+Learn more about each validation type:
+
+- [Search Params](./search-params) - Validate URL query parameters
+- [Body](./body) - Validate request body (JSON, FormData, text)
+- [Headers](./headers) - Validate request headers
+- [Method](./method) - Validate HTTP method
+- [Mode](./mode) - Validate request mode
