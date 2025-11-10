@@ -2,7 +2,7 @@
 title: Validating Headers
 ---
 
-You can validate the headers of a request using the `headersSchema` function.
+You can validate the headers of a request using the `headersSchema` function. **If the validation is successful, the returned validated request will have a `headersObj` property that contains the validated headers. The original `headers` property contains the original Headers object.**
 
 ## Basic Usage
 
@@ -22,8 +22,12 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const auth = validatedRequest.headers?.authorization; // string
-  const contentType = validatedRequest.headers?.["content-type"]; // string
+  // headersObj contains the validated headers
+  const auth = validatedRequest.headersObj?.authorization; // string
+  const contentType = validatedRequest.headersObj?.["content-type"]; // string
+
+  // headers contains the original Headers object
+  const originalHeaders = validatedRequest.headers; // Headers
 }
 ```
 
@@ -48,8 +52,8 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Missing headers will be undefined
-  const auth = validatedRequest.headers?.authorization; // string | undefined
-  const apiKey = validatedRequest.headers?.["x-api-key"]; // string | undefined
+  const auth = validatedRequest.headersObj?.authorization; // string | undefined
+  const apiKey = validatedRequest.headersObj?.["x-api-key"]; // string | undefined
 }
 ```
 
@@ -72,7 +76,7 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const version = validatedRequest.headers?.["x-api-version"]; // number
+  const version = validatedRequest.headersObj?.["x-api-version"]; // number
 }
 ```
 
@@ -96,15 +100,18 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const custom = validatedRequest.headers?.["x-custom-header"];
-  const userAgent = validatedRequest.headers?.["user-agent"];
+  const custom = validatedRequest.headersObj?.["x-custom-header"];
+  const userAgent = validatedRequest.headersObj?.["user-agent"];
 }
 ```
 
 ## Case Sensitivity
 
 <Callout type="info">
-  Headers are case-insensitive according to HTTP standards. The `Headers.get()` method is case-insensitive, so `Authorization` and `authorization` refer to the same header. However, the schema keys you define will be used as-is in the result object.
+  Headers are case-insensitive according to HTTP standards. The `Headers.get()`
+  method is case-insensitive, so `Authorization` and `authorization` refer to
+  the same header. However, the schema keys you define will be used as-is in the
+  result object.
 </Callout>
 
 ```tsx
@@ -124,7 +131,7 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Result will use the schema key: "Authorization"
-  const auth = validatedRequest.headers?.Authorization;
+  const auth = validatedRequest.headersObj?.Authorization;
 }
 ```
 
@@ -149,7 +156,7 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Only authorization is in the result
-  const auth = validatedRequest.headers?.authorization;
+  const auth = validatedRequest.headersObj?.authorization;
 }
 ```
 

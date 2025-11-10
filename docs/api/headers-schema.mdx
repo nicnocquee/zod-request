@@ -38,8 +38,8 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const auth = validated.headers?.authorization; // string
-  const contentType = validated.headers?.["content-type"]; // string | undefined
+  const auth = validated.headersObj?.authorization; // string
+  const contentType = validated.headersObj?.["content-type"]; // string | undefined
 }
 ```
 
@@ -68,7 +68,7 @@ const headers = headersSchema(
 );
 
 // Access with the same key
-const contentType = validated.headers?.["Content-Type"];
+const contentType = validated.headersObj?.["Content-Type"];
 ```
 
 ## Behavior

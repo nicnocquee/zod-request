@@ -108,7 +108,7 @@ export async function POST(request: Request) {
   const mode = validatedRequest.mode; // "cors"
   const filter = validatedRequest.searchParamsObject?.filter;
   const name = validatedRequest.bodyObject?.name;
-  const auth = validatedRequest.headers?.authorization;
+  const auth = validatedRequest.headersObj?.authorization;
 }
 ```
 

@@ -328,7 +328,7 @@ export async function POST(request: Request) {
 
   const filter = validatedRequest.searchParamsObject.filter;
   const name = validatedRequest.body.name;
-  const auth = validatedRequest.headers.authorization;
+  const auth = validatedRequest.headersObj.authorization;
   const method = validatedRequest.method;
 }
 ```
