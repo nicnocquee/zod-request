@@ -146,7 +146,10 @@ export async function handler(request: Request) {
 ## Pathname Extraction
 
 <Callout type="info">
-  The pathname is automatically extracted from the request URL. The pathname does not include query parameters or hash fragments. For example, a URL like `https://example.com/api/users?page=1#section` will have a pathname of `"/api/users"` (without the query or hash).
+  The pathname is automatically extracted from the request URL. The pathname
+  does not include query parameters or hash fragments. For example, a URL like
+  `https://example.com/api/users?page=1#section` will have a pathname of
+  `"/api/users"` (without the query or hash).
 </Callout>
 
 ```tsx
@@ -160,42 +163,6 @@ export async function handler(request: Request) {
   }).parseAsync(request);
 
   const pathname = validatedRequest.pathname; // "/api/users" (without query)
-}
-```
-
-## Security Considerations
-
-When building secure applications, you should validate pathnames to ensure requests are going to expected routes:
-
-```tsx
-import { requestSchema } from "zod-request";
-import { z } from "zod";
-
-export async function secureHandler(request: Request) {
-  // Enforce specific pathname for security
-  const validatedRequest = await requestSchema({
-    pathname: z.literal("/api/users"),
-  }).parseAsync(request);
-
-  // Only requests to "/api/users" will pass validation
-  // Requests to other pathnames will be rejected
-}
-```
-
-You can also use pattern matching to allow multiple routes:
-
-```tsx
-import { requestSchema } from "zod-request";
-import { z } from "zod";
-
-export async function handler(request: Request) {
-  // Allow any API route
-  const validatedRequest = await requestSchema({
-    pathname: z.string().startsWith("/api/"),
-  }).parseAsync(request);
-
-  // Matches: /api/users, /api/posts, /api/comments, etc.
-  // Does not match: /users, /posts, etc.
 }
 ```
 
@@ -225,11 +192,7 @@ import { z } from "zod";
 
 export async function handler(request: Request) {
   const validatedRequest = await requestSchema({
-    pathname: z.enum([
-      "/api/users",
-      "/api/posts",
-      "/api/comments",
-    ]),
+    pathname: z.enum(["/api/users", "/api/posts", "/api/comments"]),
   }).parseAsync(request);
 
   // Allows requests to any of these routes
@@ -268,4 +231,3 @@ export async function handler(request: Request) {
   // Matches: /api/users, /api/posts, /v1/api/users
 }
 ```
-

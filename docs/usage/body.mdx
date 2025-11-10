@@ -2,7 +2,7 @@
 title: Validating Request Body
 ---
 
-You can validate the body of a request using the `bodySchema` function. It supports JSON, FormData (multipart/form-data and application/x-www-form-urlencoded), and plain text bodies. **If the validation is successful, the returned validated request will have a `bodyObject` property that contains the validated body.**
+You can validate the body of a request by creating the schema for the body using the `bodySchema` function. It supports JSON, FormData (multipart/form-data and application/x-www-form-urlencoded), and plain text bodies. **If the validation is successful, the returned validated request will have a `bodyObject` property that contains the validated body.**
 
 ## JSON Body
 
@@ -12,7 +12,9 @@ Validate JSON request body by providing a `json` schema:
 import { bodySchema, requestSchema } from "zod-request";
 import { z } from "zod";
 
+// create the schema for the body
 const body = bodySchema({
+  // create the schema for the JSON body
   json: z.object({
     name: z.string(),
     age: z.number(),
@@ -20,6 +22,7 @@ const body = bodySchema({
 });
 
 export async function POST(request: Request) {
+  // create the schema for the request
   const validatedRequest = await requestSchema({
     body,
   }).parseAsync(request);
@@ -42,6 +45,7 @@ import { bodySchema, requestSchema } from "zod-request";
 import { z } from "zod";
 
 const body = bodySchema({
+  // create the schema for the FormData body
   formData: z.object({
     name: z.string(),
     email: z.string().email(),
@@ -49,6 +53,7 @@ const body = bodySchema({
 });
 
 export async function POST(request: Request) {
+  // create the schema for the request
   const validatedRequest = await requestSchema({
     body,
   }).parseAsync(request);
@@ -81,7 +86,9 @@ Validate plain text bodies by providing a `text` schema:
 import { bodySchema, requestSchema } from "zod-request";
 import { z } from "zod";
 
+// create the schema for the body
 const body = bodySchema({
+  // create the schema for the text body
   text: z.string().min(10),
 });
 
@@ -153,7 +160,10 @@ export async function POST(request: Request) {
 
 ## Handling Missing Body
 
-If no matching content type is found or no body schemas are provided, `body` will be `undefined`:
+**When a body schema is defined, validation will fail if:**
+
+- The request doesn't have a matching content type
+- The request doesn't have a body
 
 ```tsx
 import { bodySchema, requestSchema } from "zod-request";
@@ -163,14 +173,34 @@ const body = bodySchema({
   json: z.object({ value: z.string() }),
 });
 
-export async function GET(request: Request) {
-  const validatedRequest = await requestSchema({
-    body,
-  }).parseAsync(request);
+export async function POST(request: Request) {
+  try {
+    const validatedRequest = await requestSchema({
+      body,
+    }).parseAsync(request);
 
-  // GET requests typically don't have bodies
+    // bodyObject is guaranteed to be defined when validation succeeds
+    const value = validatedRequest.bodyObject.value;
+  } catch (error) {
+    // Validation will fail if:
+    // - Content-Type is not "application/json"
+    // - Request has no body
+    // Handle error appropriately
+  }
+}
+```
+
+**If no body schemas are provided, `bodyObject` will be `undefined`:**
+
+```tsx
+import { requestSchema } from "zod-request";
+
+export async function GET(request: Request) {
+  const validatedRequest = await requestSchema({}).parseAsync(request);
+
+  // No body schema provided, so bodyObject is undefined
   if (validatedRequest.bodyObject) {
-    // Handle validated body
+    // This will never be true when no body schema is provided
   }
 }
 ```
