@@ -21,7 +21,7 @@ A `z.ZodLiteral` schema that validates to the exact HTTP method value provided.
 ## Example
 
 ```tsx
-import { httpMethodSchema, requestSchema } from "zod-request";
+import { httpMethodSchema, requestSchema } from "@nicnocquee/zod-request";
 
 const schema = requestSchema({
   method: httpMethodSchema("POST"),
@@ -71,7 +71,7 @@ const httpMethodEnumSchema: z.ZodEnum<
 Use this when you want to accept any valid HTTP method:
 
 ```tsx
-import { httpMethodEnumSchema, requestSchema } from "zod-request";
+import { httpMethodEnumSchema, requestSchema } from "@nicnocquee/zod-request";
 
 const schema = requestSchema({
   method: httpMethodEnumSchema,

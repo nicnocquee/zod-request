@@ -9,7 +9,7 @@ You can validate the protocol of a request using protocol schemas. The protocol 
 The simplest way is to use Zod's `z.literal()`:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 For better type safety and compile-time validation, use the `protocolSchema` helper:
 
 ```tsx
-import { requestSchema, protocolSchema } from "zod-request";
+import { requestSchema, protocolSchema } from "@nicnocquee/zod-request";
 
 export async function GET(request: Request) {
   const validatedRequest = await requestSchema({
@@ -44,7 +44,7 @@ The `protocolSchema` function ensures only valid protocols are used and provides
 To accept any valid protocol, use `protocolEnumSchema`:
 
 ```tsx
-import { requestSchema, protocolEnumSchema } from "zod-request";
+import { requestSchema, protocolEnumSchema } from "@nicnocquee/zod-request";
 
 export async function handler(request: Request) {
   const validatedRequest = await requestSchema({
@@ -78,7 +78,7 @@ import {
   headersSchema,
   httpMethodSchema,
   requestModeSchema,
-} from "zod-request";
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 If the request protocol doesn't match the schema, a validation error will be thrown:
 
 ```tsx
-import { requestSchema, protocolSchema } from "zod-request";
+import { requestSchema, protocolSchema } from "@nicnocquee/zod-request";
 
 export async function handler(request: Request) {
   try {
@@ -134,11 +134,14 @@ export async function handler(request: Request) {
 ## Protocol Extraction
 
 <Callout type="info">
-  The protocol is automatically extracted from the request URL. The URL protocol includes a colon (e.g., "https:"), but the validated protocol value is returned without the colon (e.g., "https"). This matches the standard web protocol format.
+  The protocol is automatically extracted from the request URL. The URL protocol
+  includes a colon (e.g., "https:"), but the validated protocol value is
+  returned without the colon (e.g., "https"). This matches the standard web
+  protocol format.
 </Callout>
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // Request with "https://example.com" will have protocol "https"
@@ -156,7 +159,7 @@ export async function handler(request: Request) {
 When building secure applications, you should typically require HTTPS:
 
 ```tsx
-import { requestSchema, protocolSchema } from "zod-request";
+import { requestSchema, protocolSchema } from "@nicnocquee/zod-request";
 
 export async function secureHandler(request: Request) {
   // Enforce HTTPS for security

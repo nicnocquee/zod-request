@@ -34,7 +34,7 @@ function requestSchema<
   protocol?: TProtocol;
   hostname?: THostname;
   pathname?: TPathname;
-}): z.ZodType<ValidatedRequest>
+}): z.ZodType<ValidatedRequest>;
 ```
 
 ## Parameters
@@ -68,7 +68,11 @@ A preprocessed Zod schema that validates the entire Request object. The validate
 ## Basic Usage
 
 ```tsx
-import { requestSchema, searchParamsSchema, bodySchema } from "zod-request";
+import {
+  requestSchema,
+  searchParamsSchema,
+  bodySchema,
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const schema = requestSchema({
@@ -103,7 +107,7 @@ import {
   headersSchema,
   httpMethodSchema,
   protocolSchema,
-} from "zod-request";
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const schema = requestSchema({
@@ -184,4 +188,3 @@ try {
 - [`protocolSchema`](./protocol-schema) - Validate protocol
 - [`hostname`](../usage/hostname) - Validate hostname
 - [`pathname`](../usage/pathname) - Validate pathname
-

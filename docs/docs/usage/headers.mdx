@@ -7,7 +7,7 @@ You can validate the headers of a request using the `headersSchema` function. **
 ## Basic Usage
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 Use `.optional()` to make headers optional:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
 You can transform header values using Zod's transformation methods:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
 Header names can include hyphens and other special characters. Use bracket notation to access them:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -115,7 +115,7 @@ export async function GET(request: Request) {
 </Callout>
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -140,7 +140,7 @@ export async function GET(request: Request) {
 The function only extracts headers that are defined in your schema. Other headers in the request are ignored:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -165,7 +165,7 @@ export async function GET(request: Request) {
 Invalid header values will throw a Zod validation error:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(

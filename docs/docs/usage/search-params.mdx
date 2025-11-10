@@ -7,7 +7,7 @@ You can validate the search params (URL query parameters) of a request by creati
 ## Basic Usage
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // create the schema for the search params
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 Use `.optional()` to make search parameters optional:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
 You can transform search parameter values using Zod's transformation methods:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
 Since URL search parameters are always strings, you may need to coerce them to other types:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
 Apply Zod validation rules to search parameters:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -140,7 +140,7 @@ export async function GET(request: Request) {
 The function handles empty search params gracefully:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -164,7 +164,7 @@ export async function GET(request: Request) {
 The function automatically handles URL-encoded special characters:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -190,7 +190,7 @@ export async function GET(request: Request) {
 If a URL has multiple values for the same parameter, you must use an array schema. Otherwise, a validation error will be thrown:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // ❌ This will throw an error if multiple values exist
@@ -238,7 +238,7 @@ export async function GET(request: Request) {
 The function only extracts search parameters that are defined in your schema. Other parameters in the URL are ignored:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -263,7 +263,7 @@ export async function GET(request: Request) {
 Invalid search parameter values will throw a Zod validation error:
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -303,7 +303,7 @@ import {
   bodySchema,
   headersSchema,
   httpMethodSchema,
-} from "zod-request";
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function POST(request: Request) {

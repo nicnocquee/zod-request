@@ -7,11 +7,13 @@ Creates a Zod schema that validates the body of a request. Supports JSON, FormDa
 ## Signature
 
 ```typescript
-function bodySchema<T extends {
-  json?: z.ZodTypeAny;
-  formData?: z.ZodTypeAny;
-  text?: z.ZodTypeAny;
-}>(schemas: T): z.ZodType<{ body: BodyType }>
+function bodySchema<
+  T extends {
+    json?: z.ZodTypeAny;
+    formData?: z.ZodTypeAny;
+    text?: z.ZodTypeAny;
+  }
+>(schemas: T): z.ZodType<{ body: BodyType }>;
 ```
 
 ## Parameters
@@ -28,7 +30,7 @@ A preprocessed Zod schema that validates the request body based on the Content-T
 ## JSON Body
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const body = bodySchema({
@@ -74,6 +76,7 @@ const body = bodySchema({
 ## Content-Type Detection
 
 The function automatically detects the content type from the `Content-Type` header:
+
 - `application/json` → uses `json` schema
 - `multipart/form-data` or `application/x-www-form-urlencoded` → uses `formData` schema
 - Other content types → uses `text` schema (if provided)
@@ -82,4 +85,3 @@ The function automatically detects the content type from the `Content-Type` head
 
 - [Usage Guide: Validating Request Body](../usage/body) - Detailed usage examples
 - [`requestSchema`](./request-schema) - Complete request validation
-

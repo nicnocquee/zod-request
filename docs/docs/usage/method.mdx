@@ -9,7 +9,7 @@ You can validate the HTTP method of a request using method schemas. The library 
 The simplest way is to use Zod's `z.literal()`:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 For better type safety and compile-time validation, use the `httpMethodSchema` helper:
 
 ```tsx
-import { requestSchema, httpMethodSchema } from "zod-request";
+import { requestSchema, httpMethodSchema } from "@nicnocquee/zod-request";
 
 export async function POST(request: Request) {
   const validatedRequest = await requestSchema({
@@ -44,7 +44,7 @@ The `httpMethodSchema` function ensures only valid HTTP methods are used and pro
 To accept any standard HTTP method, use `httpMethodEnumSchema`:
 
 ```tsx
-import { requestSchema, httpMethodEnumSchema } from "zod-request";
+import { requestSchema, httpMethodEnumSchema } from "@nicnocquee/zod-request";
 
 export async function handler(request: Request) {
   const validatedRequest = await requestSchema({
@@ -79,7 +79,7 @@ import {
   searchParamsSchema,
   bodySchema,
   headersSchema,
-} from "zod-request";
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
 If the request method doesn't match the schema, a validation error will be thrown:
 
 ```tsx
-import { requestSchema, httpMethodSchema } from "zod-request";
+import { requestSchema, httpMethodSchema } from "@nicnocquee/zod-request";
 
 export async function handler(request: Request) {
   try {
@@ -131,11 +131,14 @@ export async function handler(request: Request) {
 ## Method Normalization
 
 <Callout type="info">
-  The Request API normalizes HTTP methods to uppercase. So if a request is created with `method: "post"` (lowercase), it will be normalized to `"POST"` (uppercase) automatically. Your schema should always use uppercase method names.
+  The Request API normalizes HTTP methods to uppercase. So if a request is
+  created with `method: "post"` (lowercase), it will be normalized to `"POST"`
+  (uppercase) automatically. Your schema should always use uppercase method
+  names.
 </Callout>
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // Request with lowercase "post" will be normalized to "POST"

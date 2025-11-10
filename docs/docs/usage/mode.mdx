@@ -9,7 +9,7 @@ You can validate the request mode using mode schemas. Request mode determines th
 The simplest way is to use Zod's `z.literal()`:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 To accept any valid request mode, use `requestModeEnumSchema`:
 
 ```tsx
-import { requestSchema, requestModeEnumSchema } from "zod-request";
+import { requestSchema, requestModeEnumSchema } from "@nicnocquee/zod-request";
 
 export async function handler(request: Request) {
   const validatedRequest = await requestSchema({
@@ -43,7 +43,7 @@ export async function handler(request: Request) {
 For better type safety, use the `requestModeSchema` helper:
 
 ```tsx
-import { requestSchema, requestModeSchema } from "zod-request";
+import { requestSchema, requestModeSchema } from "@nicnocquee/zod-request";
 
 export async function GET(request: Request) {
   const validatedRequest = await requestSchema({
@@ -77,7 +77,7 @@ import {
   bodySchema,
   headersSchema,
   httpMethodSchema,
-} from "zod-request";
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
 If the request mode doesn't match the schema, a validation error will be thrown:
 
 ```tsx
-import { requestSchema, requestModeSchema } from "zod-request";
+import { requestSchema, requestModeSchema } from "@nicnocquee/zod-request";
 
 export async function handler(request: Request) {
   try {
@@ -131,11 +131,14 @@ export async function handler(request: Request) {
 ## Navigate Mode
 
 <Callout type="info">
-  The `"navigate"` mode is special - it's used internally by browsers for navigation requests and typically cannot be set manually in the Request constructor. It's included in the enum for completeness, but in practice, you'll mostly work with `"cors"`, `"same-origin"`, and `"no-cors"`.
+  The `"navigate"` mode is special - it's used internally by browsers for
+  navigation requests and typically cannot be set manually in the Request
+  constructor. It's included in the enum for completeness, but in practice,
+  you'll mostly work with `"cors"`, `"same-origin"`, and `"no-cors"`.
 </Callout>
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // Most common modes in practice
