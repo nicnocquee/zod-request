@@ -130,7 +130,9 @@ export async function handler(request: Request) {
 
 ## Method Normalization
 
-**Note:** The Request API normalizes HTTP methods to uppercase. So if a request is created with `method: "post"` (lowercase), it will be normalized to `"POST"` (uppercase) automatically. Your schema should always use uppercase method names.
+<Callout type="info">
+  The Request API normalizes HTTP methods to uppercase. So if a request is created with `method: "post"` (lowercase), it will be normalized to `"POST"` (uppercase) automatically. Your schema should always use uppercase method names.
+</Callout>
 
 ```tsx
 import { requestSchema } from "zod-request";

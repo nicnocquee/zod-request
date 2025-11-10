@@ -60,9 +60,18 @@ export async function POST(request: Request) {
 }
 ```
 
-**Note:** Non-string form values (like File objects) are converted to `undefined` in the parsed object.
+<Callout type="info">
+  Non-string form values (like File objects) are converted to `undefined` in the
+  parsed object.
+</Callout>
 
-**Note:** If FormData has multiple values for the same key, the behavior is non-deterministic. The implementation iterates through `FormData.entries()`, and the last value encountered during iteration will be used. However, the iteration order may vary by environment, so you should avoid relying on a specific value when multiple values exist for the same key.
+<Callout type="warn">
+  If FormData has multiple values for the same key, the behavior is
+  non-deterministic. The implementation iterates through `FormData.entries()`,
+  and the last value encountered during iteration will be used. However, the
+  iteration order may vary by environment, so you should avoid relying on a
+  specific value when multiple values exist for the same key.
+</Callout>
 
 ## Text Body
 
@@ -136,7 +145,11 @@ export async function POST(request: Request) {
 }
 ```
 
-**Note:** `bodyObject` is only defined when a body schema is provided to `requestSchema`. It contains the unwrapped body value, allowing direct property access without needing to access a nested `body` property.
+<Callout type="info">
+  `bodyObject` is only defined when a body schema is provided to
+  `requestSchema`. It contains the unwrapped body value, allowing direct
+  property access without needing to access a nested `body` property.
+</Callout>
 
 ## Handling Missing Body
 

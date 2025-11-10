@@ -145,7 +145,9 @@ export async function handler(request: Request) {
 
 ## Hostname Extraction
 
-**Note:** The hostname is automatically extracted from the request URL. The hostname does not include the port number, even if the URL contains one. For example, a URL like `https://example.com:8080` will have a hostname of `"example.com"` (without the port).
+<Callout type="info">
+  The hostname is automatically extracted from the request URL. The hostname does not include the port number, even if the URL contains one. For example, a URL like `https://example.com:8080` will have a hostname of `"example.com"` (without the port).
+</Callout>
 
 ```tsx
 import { requestSchema } from "zod-request";

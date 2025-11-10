@@ -103,7 +103,9 @@ export async function GET(request: Request) {
 
 ## Case Sensitivity
 
-**Note:** Headers are case-insensitive according to HTTP standards. The `Headers.get()` method is case-insensitive, so `Authorization` and `authorization` refer to the same header. However, the schema keys you define will be used as-is in the result object.
+<Callout type="info">
+  Headers are case-insensitive according to HTTP standards. The `Headers.get()` method is case-insensitive, so `Authorization` and `authorization` refer to the same header. However, the schema keys you define will be used as-is in the result object.
+</Callout>
 
 ```tsx
 import { headersSchema, requestSchema } from "zod-request";
