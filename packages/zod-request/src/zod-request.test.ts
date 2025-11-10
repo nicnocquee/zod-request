@@ -1219,6 +1219,12 @@ describe("requestSchema", () => {
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject.value).toBe("test");
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject.value).toBe("test");
     });
 
     it("should parse request with formData body only", async () => {
@@ -1246,6 +1252,12 @@ describe("requestSchema", () => {
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject.name).toBe("John");
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject.name).toBe("John");
     });
   });
 
@@ -1281,6 +1293,12 @@ describe("requestSchema", () => {
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject.value).toBe("test");
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject.value).toBe("test");
     });
 
     it("should parse request with both search params and formData body", async () => {
@@ -1316,6 +1334,84 @@ describe("requestSchema", () => {
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject.name).toBe("John");
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      // This type assertion will fail at compile time if bodyObject becomes optional
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      // Verify we can access properties without optional chaining
+      expect(bodyObject.name).toBe("John");
+    });
+  });
+
+  describe("type safety regression prevention", () => {
+    // These tests use TypeScript's type system to catch regressions at compile time
+    // If bodyObject becomes optional when it shouldn't be, these will fail to compile
+
+    it("should ensure bodyObject is never undefined when body schema is provided", async () => {
+      const body = bodySchema({
+        json: z.object({ value: z.string() }),
+      });
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ value: "test" }),
+      });
+
+      const schema = requestSchema({ body });
+      const result = await schema.parseAsync(request);
+
+      // Type-level test: This assignment should fail at compile time
+      // If bodyObject becomes optional, this would compile (which is wrong)
+      // @ts-expect-error - This SHOULD error because bodyObject is required, not undefined
+      const _testUndefined: undefined = result.bodyObject;
+
+      // Type-level test: This should work without optional chaining
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject.value).toBe("test");
+    });
+
+    it("should ensure bodyObject is undefined when body schema is not provided", async () => {
+      const request = new Request("https://example.com", {
+        method: "GET",
+      });
+
+      const schema = requestSchema({});
+      const result = await schema.parseAsync(request);
+
+      // Type-level test: bodyObject should be undefined/never when no body schema
+      // This should compile without error
+      const bodyObject: undefined = (result as { bodyObject?: never })
+        .bodyObject;
+      expect(bodyObject).toBeUndefined();
+    });
+
+    it("should ensure bodyObject type matches the body schema type", async () => {
+      const body = bodySchema({
+        formData: z.object({
+          name: z.string(),
+          age: z.string().transform((val) => Number(val)),
+        }),
+      });
+
+      const formData = new FormData();
+      formData.append("name", "John");
+      formData.append("age", "30");
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        body: formData,
+      });
+
+      const schema = requestSchema({ body });
+      const result = await schema.parseAsync(request);
+
+      // Type-level test: bodyObject should have the exact type from the schema
+      const bodyObject: { name: string; age: number } = result.bodyObject;
+      expect(bodyObject.name).toBe("John");
+      expect(bodyObject.age).toBe(30);
     });
   });
 
@@ -2002,6 +2098,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ name: "John" });
     });
 
     it("should validate method combined with headers", async () => {
@@ -2076,6 +2178,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ value: "test" });
     });
 
     it("should not include method in result when method schema is not provided", async () => {
@@ -2288,6 +2396,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ name: "John" });
     });
 
     it("should validate mode combined with headers", async () => {
@@ -2382,6 +2496,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ value: "test" });
     });
 
     it("should not include mode in result when mode schema is not provided", async () => {
@@ -2538,6 +2658,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ name: "John" });
     });
 
     it("should validate protocol combined with headers", async () => {
@@ -2650,6 +2776,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ value: "test" });
     });
 
     it("should not include protocol in result when protocol schema is not provided", async () => {
@@ -2804,6 +2936,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ name: "John" });
     });
 
     it("should validate hostname combined with headers", async () => {
@@ -2934,6 +3072,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ value: "test" });
     });
 
     it("should not include hostname in result when hostname schema is not provided", async () => {
@@ -3119,6 +3263,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ name: "John" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { name: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ name: "John" });
     });
 
     it("should validate pathname combined with headers", async () => {
@@ -3272,6 +3422,12 @@ describe("requestSchema", () => {
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
       expect(result.bodyObject).toEqual({ value: "test" });
+
+      // Type safety regression prevention: bodyObject should never be undefined
+      // when body schema is provided and validation succeeds
+      const bodyObject: { value: string } = result.bodyObject;
+      expect(bodyObject).toBeDefined();
+      expect(bodyObject).toEqual({ value: "test" });
     });
 
     it("should not include pathname in result when pathname schema is not provided", async () => {

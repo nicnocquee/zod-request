@@ -139,6 +139,7 @@ function buildResultSchema<
     fields.body = z
       .instanceof(ReadableStream)
       .nullable() as z.ZodType<ReadableStream<Uint8Array> | null>;
+    // bodyObject is required when body schema is provided (matches TypeScript type)
     // Use the type parameter for proper type inference
     fields.bodyObject = z.unknown() as z.ZodType<TBodyType>;
   } else {
