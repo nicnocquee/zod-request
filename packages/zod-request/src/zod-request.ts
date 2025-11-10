@@ -240,8 +240,13 @@ export function bodySchema<
         throw new Error("Expected Request");
       }
       const contentType = val.headers.get("content-type") ?? "";
+      const hasAnySchema = !!(schemas.json || schemas.formData || schemas.text);
+      const hasBody = val.body !== null;
 
       if (schemas.json && contentType.includes("application/json")) {
+        if (!hasBody) {
+          throw new Error("Request body is required for JSON schema");
+        }
         const json = await val.json();
         return { body: schemas.json.parse(json) as BodyType };
       }
@@ -251,6 +256,9 @@ export function bodySchema<
         (contentType.includes("multipart/form-data") ||
           contentType.includes("application/x-www-form-urlencoded"))
       ) {
+        if (!hasBody) {
+          throw new Error("Request body is required for FormData schema");
+        }
         const obj: Record<string, string | undefined> = {};
 
         if (contentType.includes("application/x-www-form-urlencoded")) {
@@ -330,8 +338,39 @@ export function bodySchema<
       }
 
       if (schemas.text) {
-        const text = await val.text();
-        return { body: schemas.text.parse(text) as BodyType };
+        // Check if content-type is text/* or empty (text can be used as fallback)
+        const isTextContentType =
+          contentType.startsWith("text/") || contentType === "";
+        if (isTextContentType) {
+          if (!hasBody) {
+            throw new Error("Request body is required for text schema");
+          }
+          const text = await val.text();
+          return { body: schemas.text.parse(text) as BodyType };
+        }
+      }
+
+      // If schemas are defined but no matching content type was found, throw an error
+      if (hasAnySchema) {
+        if (!hasBody) {
+          throw new Error("Request body is required");
+        }
+        // Determine which schema was expected based on what was provided
+        const expectedTypes: string[] = [];
+        if (schemas.json) expectedTypes.push("application/json");
+        if (schemas.formData) {
+          expectedTypes.push(
+            "multipart/form-data",
+            "application/x-www-form-urlencoded"
+          );
+        }
+        if (schemas.text) expectedTypes.push("text/*");
+
+        throw new Error(
+          `Content-Type mismatch. Expected one of: ${expectedTypes.join(
+            ", "
+          )}, but got: ${contentType || "(no content-type header)"}`
+        );
       }
 
       return { body: undefined as BodyType };

@@ -2,7 +2,7 @@
 title: Validating Search Params
 ---
 
-You can validate the search params (URL query parameters) of a request using the `searchParamsSchema` function. **If the validation is successful, the returned validated request will have a `searchParamsObject` property that contains the validated search parameters.**
+You can validate the search params (URL query parameters) of a request by creating the schema for the search params using the `searchParamsSchema` function. **If the validation is successful, the returned validated request will have a `searchParamsObject` property that contains the validated search parameters.**
 
 ## Basic Usage
 
@@ -10,6 +10,7 @@ You can validate the search params (URL query parameters) of a request using the
 import { searchParamsSchema, requestSchema } from "zod-request";
 import { z } from "zod";
 
+// create the schema for the search params
 const searchParams = searchParamsSchema(
   z.object({
     name: z.string(),
@@ -18,6 +19,7 @@ const searchParams = searchParamsSchema(
 );
 
 export async function GET(request: Request) {
+  // create the schema for the request
   const schema = requestSchema({
     searchParams,
   });

@@ -1010,7 +1010,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ type: "form" });
     });
 
-    it("should return undefined body when no matching content type", async () => {
+    it("should throw error when no matching content type", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -1020,9 +1020,10 @@ describe("bodySchema", () => {
       });
 
       const bodySchemaInstance = bodySchema({ json: schema });
-      const result = await bodySchemaInstance.parseAsync(request);
 
-      expect(result.body).toBeUndefined();
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Content-Type mismatch"
+      );
     });
 
     it("should return undefined body when no schemas provided", async () => {
@@ -1049,7 +1050,7 @@ describe("bodySchema", () => {
       ).rejects.toThrow("Expected Request");
     });
 
-    it("should handle missing content-type header", async () => {
+    it("should throw error when missing content-type header", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -1058,12 +1059,13 @@ describe("bodySchema", () => {
       });
 
       const bodySchemaInstance = bodySchema({ json: schema });
-      const result = await bodySchemaInstance.parseAsync(request);
 
-      expect(result.body).toBeUndefined();
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Content-Type mismatch"
+      );
     });
 
-    it("should handle empty content-type header", async () => {
+    it("should throw error when empty content-type header", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -1073,12 +1075,13 @@ describe("bodySchema", () => {
       });
 
       const bodySchemaInstance = bodySchema({ json: schema });
-      const result = await bodySchemaInstance.parseAsync(request);
 
-      expect(result.body).toBeUndefined();
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Content-Type mismatch"
+      );
     });
 
-    it("should handle GET request with no body", async () => {
+    it("should throw error when GET request has no body", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -1086,9 +1089,24 @@ describe("bodySchema", () => {
       });
 
       const bodySchemaInstance = bodySchema({ json: schema });
-      const result = await bodySchemaInstance.parseAsync(request);
 
-      expect(result.body).toBeUndefined();
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Request body is required"
+      );
+    });
+
+    it("should throw error when POST request has no body", async () => {
+      const schema = z.object({ value: z.string() });
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+      });
+
+      const bodySchemaInstance = bodySchema({ json: schema });
+
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Request body is required"
+      );
     });
 
     it("should handle request with null body", async () => {
