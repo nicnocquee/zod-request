@@ -7,7 +7,7 @@ Creates a type-safe Zod literal schema for a specific Request mode value.
 ## Signature
 
 ```typescript
-function requestModeSchema<T extends RequestMode>(mode: T): z.ZodLiteral<T>
+function requestModeSchema<T extends RequestMode>(mode: T): z.ZodLiteral<T>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ A `z.ZodLiteral` schema that validates to the exact Request mode value provided.
 ## Example
 
 ```tsx
-import { requestModeSchema, requestSchema } from "zod-request";
+import { requestModeSchema, requestSchema } from "@nicnocquee/zod-request";
 
 const schema = requestSchema({
   mode: requestModeSchema("cors"),
@@ -61,7 +61,9 @@ A Zod enum schema that validates against all valid Request mode values.
 ### Signature
 
 ```typescript
-const requestModeEnumSchema: z.ZodEnum<["same-origin", "no-cors", "cors", "navigate"]>
+const requestModeEnumSchema: z.ZodEnum<
+  ["same-origin", "no-cors", "cors", "navigate"]
+>;
 ```
 
 ### Usage
@@ -69,7 +71,7 @@ const requestModeEnumSchema: z.ZodEnum<["same-origin", "no-cors", "cors", "navig
 Use this when you want to accept any valid Request mode:
 
 ```tsx
-import { requestModeEnumSchema, requestSchema } from "zod-request";
+import { requestModeEnumSchema, requestSchema } from "@nicnocquee/zod-request";
 
 const schema = requestSchema({
   mode: requestModeEnumSchema,
@@ -85,4 +87,3 @@ export async function GET(request: Request) {
 
 - Use `requestModeEnumSchema` when you want to accept any valid Request mode
 - Use `requestModeSchema` when you need to validate a specific Request mode value
-

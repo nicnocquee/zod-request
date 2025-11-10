@@ -9,7 +9,7 @@ Creates a Zod schema that validates the search params (URL query parameters) of 
 ```typescript
 function searchParamsSchema<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>
-): z.ZodType<z.infer<z.ZodObject<T>>>
+): z.ZodType<z.infer<z.ZodObject<T>>>;
 ```
 
 ## Parameters
@@ -23,7 +23,7 @@ A preprocessed Zod schema that validates search parameters from a request URL.
 ## Basic Usage
 
 ```tsx
-import { searchParamsSchema, requestSchema } from "zod-request";
+import { searchParamsSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const searchParams = searchParamsSchema(
@@ -79,4 +79,3 @@ const searchParams = searchParamsSchema(
 
 - [Usage Guide: Validating Search Params](../usage/search-params) - Detailed usage examples
 - [`requestSchema`](./request-schema) - Complete request validation
-

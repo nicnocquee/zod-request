@@ -9,7 +9,7 @@ You can validate the hostname of a request using string schemas. The hostname is
 The simplest way is to use Zod's `z.literal()`:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 You can use any string schema to validate the hostname:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 You can use Zod's string validation methods to validate hostnames:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
 You can use regex patterns to validate hostnames:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function GET(request: Request) {
@@ -87,7 +87,7 @@ import {
   headersSchema,
   httpMethodSchema,
   requestModeSchema,
-} from "zod-request";
+} from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -125,10 +125,10 @@ export async function POST(request: Request) {
 
 ## Error Handling
 
-If the request hostname doesn't match the schema, a validation error will be thrown:
+If the request hostname doesn't match the schema, a validation error will be thrown if you use `parse` or `parseAsync`.
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function handler(request: Request) {
@@ -146,11 +146,14 @@ export async function handler(request: Request) {
 ## Hostname Extraction
 
 <Callout type="info">
-  The hostname is automatically extracted from the request URL. The hostname does not include the port number, even if the URL contains one. For example, a URL like `https://example.com:8080` will have a hostname of `"example.com"` (without the port).
+  The hostname is automatically extracted from the request URL. The hostname
+  does not include the port number, even if the URL contains one. For example, a
+  URL like `https://example.com:8080` will have a hostname of `"example.com"`
+  (without the port).
 </Callout>
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // Request with "https://example.com:8080" will have hostname "example.com"
@@ -168,7 +171,7 @@ export async function handler(request: Request) {
 When building secure applications, you should validate hostnames to ensure requests are coming from expected domains:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function secureHandler(request: Request) {
@@ -185,7 +188,7 @@ export async function secureHandler(request: Request) {
 You can also use pattern matching to allow multiple subdomains:
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function handler(request: Request) {
@@ -204,7 +207,7 @@ export async function handler(request: Request) {
 ### Validating API Endpoints
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function apiHandler(request: Request) {
@@ -220,7 +223,7 @@ export async function apiHandler(request: Request) {
 ### Allowing Multiple Environments
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function handler(request: Request) {
@@ -239,7 +242,7 @@ export async function handler(request: Request) {
 ### Validating Subdomains
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 export async function handler(request: Request) {

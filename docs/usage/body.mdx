@@ -9,7 +9,7 @@ You can validate the body of a request by creating the schema for the body using
 Validate JSON request body by providing a `json` schema:
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // create the schema for the body
@@ -41,7 +41,7 @@ The function automatically detects `application/json` content type (including wi
 Validate form data (both `multipart/form-data` and `application/x-www-form-urlencoded`) by providing a `formData` schema:
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const body = bodySchema({
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
 Validate plain text bodies by providing a `text` schema:
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 // create the schema for the body
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
 You can provide multiple body schemas. The function will check them in order: JSON first, then FormData, then text:
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const body = bodySchema({
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 When body validation succeeds, the validated result includes both `body` (the original request body) and `bodyObject` (the validated body for direct property access):
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const body = bodySchema({
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
 - The request doesn't have a body
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const body = bodySchema({
@@ -193,7 +193,7 @@ export async function POST(request: Request) {
 **If no body schemas are provided, `bodyObject` will be `undefined`:**
 
 ```tsx
-import { requestSchema } from "zod-request";
+import { requestSchema } from "@nicnocquee/zod-request";
 
 export async function GET(request: Request) {
   const validatedRequest = await requestSchema({}).parseAsync(request);
@@ -210,7 +210,7 @@ export async function GET(request: Request) {
 Invalid body data will throw a Zod validation error:
 
 ```tsx
-import { bodySchema, requestSchema } from "zod-request";
+import { bodySchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const body = bodySchema({

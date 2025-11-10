@@ -9,7 +9,7 @@ Creates a Zod schema that validates the headers of a request.
 ```typescript
 function headersSchema<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>
-): z.ZodType<z.infer<z.ZodObject<T>>>
+): z.ZodType<z.infer<z.ZodObject<T>>>;
 ```
 
 ## Parameters
@@ -23,7 +23,7 @@ A preprocessed Zod schema that validates headers from a request.
 ## Basic Usage
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -81,4 +81,3 @@ const contentType = validated.headersObj?.["Content-Type"];
 
 - [Usage Guide: Validating Headers](../usage/headers) - Detailed usage examples
 - [`requestSchema`](./request-schema) - Complete request validation
-

@@ -7,7 +7,7 @@ You can validate the headers of a request using the `headersSchema` function. **
 ## Basic Usage
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -23,8 +23,8 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // headersObj contains the validated headers
-  const auth = validatedRequest.headersObj?.authorization; // string
-  const contentType = validatedRequest.headersObj?.["content-type"]; // string
+  const auth = validatedRequest.headersObj.authorization; // string
+  const contentType = validatedRequest.headersObj["content-type"]; // string
 
   // headers contains the original Headers object
   const originalHeaders = validatedRequest.headers; // Headers
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 Use `.optional()` to make headers optional:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -52,8 +52,8 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Missing headers will be undefined
-  const auth = validatedRequest.headersObj?.authorization; // string | undefined
-  const apiKey = validatedRequest.headersObj?.["x-api-key"]; // string | undefined
+  const auth = validatedRequest.headersObj.authorization; // string | undefined
+  const apiKey = validatedRequest.headersObj["x-api-key"]; // string | undefined
 }
 ```
 
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
 You can transform header values using Zod's transformation methods:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const version = validatedRequest.headersObj?.["x-api-version"]; // number
+  const version = validatedRequest.headersObj["x-api-version"]; // number
 }
 ```
 
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
 Header names can include hyphens and other special characters. Use bracket notation to access them:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -100,8 +100,8 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const custom = validatedRequest.headersObj?.["x-custom-header"];
-  const userAgent = validatedRequest.headersObj?.["user-agent"];
+  const custom = validatedRequest.headersObj["x-custom-header"];
+  const userAgent = validatedRequest.headersObj["user-agent"];
 }
 ```
 
@@ -115,7 +115,7 @@ export async function GET(request: Request) {
 </Callout>
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -131,7 +131,7 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Result will use the schema key: "Authorization"
-  const auth = validatedRequest.headersObj?.Authorization;
+  const auth = validatedRequest.headersObj.Authorization;
 }
 ```
 
@@ -140,7 +140,7 @@ export async function GET(request: Request) {
 The function only extracts headers that are defined in your schema. Other headers in the request are ignored:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(
@@ -156,7 +156,7 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Only authorization is in the result
-  const auth = validatedRequest.headersObj?.authorization;
+  const auth = validatedRequest.headersObj.authorization;
 }
 ```
 
@@ -165,7 +165,7 @@ export async function GET(request: Request) {
 Invalid header values will throw a Zod validation error:
 
 ```tsx
-import { headersSchema, requestSchema } from "zod-request";
+import { headersSchema, requestSchema } from "@nicnocquee/zod-request";
 import { z } from "zod";
 
 const headers = headersSchema(

@@ -7,7 +7,7 @@ Creates a type-safe Zod literal schema for a specific protocol value.
 ## Signature
 
 ```typescript
-function protocolSchema<T extends Protocol>(protocol: T): z.ZodLiteral<T>
+function protocolSchema<T extends Protocol>(protocol: T): z.ZodLiteral<T>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ A `z.ZodLiteral` schema that validates to the exact protocol value provided.
 ## Example
 
 ```tsx
-import { protocolSchema, requestSchema } from "zod-request";
+import { protocolSchema, requestSchema } from "@nicnocquee/zod-request";
 
 const schema = requestSchema({
   protocol: protocolSchema("https"),
@@ -60,7 +60,7 @@ A Zod enum schema that validates against all valid protocol values (`"http"` and
 ### Signature
 
 ```typescript
-const protocolEnumSchema: z.ZodEnum<["http", "https"]>
+const protocolEnumSchema: z.ZodEnum<["http", "https"]>;
 ```
 
 ### Usage
@@ -68,7 +68,7 @@ const protocolEnumSchema: z.ZodEnum<["http", "https"]>
 Use this when you want to accept any valid protocol value:
 
 ```tsx
-import { protocolEnumSchema, requestSchema } from "zod-request";
+import { protocolEnumSchema, requestSchema } from "@nicnocquee/zod-request";
 
 const schema = requestSchema({
   protocol: protocolEnumSchema,
@@ -84,4 +84,3 @@ export async function GET(request: Request) {
 
 - Use `protocolEnumSchema` when you want to accept any valid protocol
 - Use `protocolSchema` when you need to validate a specific protocol value
-
