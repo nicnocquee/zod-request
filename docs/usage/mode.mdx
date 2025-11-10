@@ -130,7 +130,9 @@ export async function handler(request: Request) {
 
 ## Navigate Mode
 
-**Note:** The `"navigate"` mode is special - it's used internally by browsers for navigation requests and typically cannot be set manually in the Request constructor. It's included in the enum for completeness, but in practice, you'll mostly work with `"cors"`, `"same-origin"`, and `"no-cors"`.
+<Callout type="info">
+  The `"navigate"` mode is special - it's used internally by browsers for navigation requests and typically cannot be set manually in the Request constructor. It's included in the enum for completeness, but in practice, you'll mostly work with `"cors"`, `"same-origin"`, and `"no-cors"`.
+</Callout>
 
 ```tsx
 import { requestSchema } from "zod-request";

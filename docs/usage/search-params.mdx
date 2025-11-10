@@ -18,13 +18,13 @@ const searchParams = searchParamsSchema(
 );
 
 export async function GET(request: Request) {
-  const validatedRequest = await requestSchema({
+  const schema = requestSchema({
     searchParams,
-  }).parseAsync(request);
+  });
+  const validatedRequest = await schema.parseAsync(request);
 
   // the searchParamsObject property contains the validated search parameters
-  const name = validatedRequest.searchParamsObject.name; // string
-  const age = validatedRequest.searchParamsObject.age; // string
+  const { name, age } = validatedRequest.searchParamsObject;
 }
 ```
 
@@ -216,14 +216,20 @@ export async function GET(request: Request) {
 }
 ```
 
-Use `z.string()` if you want to make sure that there is only one value for the key.
+<Callout type="info">
+  Use `z.string()` if you want to make sure that there is only one value for the
+  key. If you want to accept multiple values, use `z.array(z.string())`.
+</Callout>
 
+<Callout type="info">
 **Important:**
 
 - If multiple values exist and the schema is **not** an array, a validation error is thrown
 - If multiple values exist and the schema **is** an array, all values are returned as an array
 - If a single value exists and the schema is an array, it's returned as an array with one element
 - If no value exists and the schema is an optional array, it returns `undefined`
+
+</Callout>
 
 ## Only Defined Parameters
 

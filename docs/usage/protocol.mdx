@@ -133,7 +133,9 @@ export async function handler(request: Request) {
 
 ## Protocol Extraction
 
-**Note:** The protocol is automatically extracted from the request URL. The URL protocol includes a colon (e.g., "https:"), but the validated protocol value is returned without the colon (e.g., "https"). This matches the standard web protocol format.
+<Callout type="info">
+  The protocol is automatically extracted from the request URL. The URL protocol includes a colon (e.g., "https:"), but the validated protocol value is returned without the colon (e.g., "https"). This matches the standard web protocol format.
+</Callout>
 
 ```tsx
 import { requestSchema } from "zod-request";

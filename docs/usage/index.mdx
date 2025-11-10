@@ -2,7 +2,7 @@
 title: Usage Guide
 ---
 
-The `zod-request` library provides utilities to validate different parts of an HTTP Request using Zod schemas. This guide covers how to use each validation function.
+The `zod-request` library provides utilities to validate different parts of an [HTTP Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) using Zod schemas. This guide covers how to use each validation function.
 
 ## Overview
 
@@ -11,7 +11,7 @@ The library provides several schema builders:
 - **`searchParamsSchema`** - Validates URL search parameters
 - **`bodySchema`** - Validates request body (JSON, FormData, or text)
 - **`headersSchema`** - Validates request headers
-- **`requestSchema`** - Combines all validations into a single schema
+- **`requestSchema`** - Combines all validations into a single schema that validates the entire Request object. **This is the main function to validate a request.**
 
 ## Basic Example
 
@@ -55,13 +55,3 @@ export async function POST(request: Request) {
   const method = validatedRequest.method; // "POST"
 }
 ```
-
-## Next Steps
-
-Learn more about each validation type:
-
-- [Search Params](./search-params) - Validate URL query parameters
-- [Body](./body) - Validate request body (JSON, FormData, text)
-- [Headers](./headers) - Validate request headers
-- [Method](./method) - Validate HTTP method
-- [Mode](./mode) - Validate request mode
