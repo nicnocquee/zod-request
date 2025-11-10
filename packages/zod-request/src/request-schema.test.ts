@@ -10,7 +10,7 @@ import { protocolSchema, protocolEnumSchema } from "./protocol";
 
 describe("requestSchema", () => {
   describe("searchParams only", () => {
-    it("should parse request with search params only", async () => {
+    it("TEST#1: should parse request with search params only", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           name: z.string(),
@@ -40,7 +40,7 @@ describe("requestSchema", () => {
       expect(result.body).toBeUndefined();
     });
 
-    it("should handle empty search params", async () => {
+    it("TEST#1: should handle empty search params", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           name: z.string().optional(),
@@ -60,7 +60,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ name: undefined });
     });
 
-    it("should throw error when search params do not match schema", async () => {
+    it("TEST#1: should throw error when search params do not match schema", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           name: z.string(),
@@ -80,7 +80,7 @@ describe("requestSchema", () => {
   });
 
   describe("body only", () => {
-    it("should parse request with JSON body only", async () => {
+    it("TEST#2: should parse request with JSON body only", async () => {
       const body = bodySchema({
         json: z.object({ value: z.string() }),
       });
@@ -114,7 +114,7 @@ describe("requestSchema", () => {
       expect(bodyObject.value).toBe("test");
     });
 
-    it("should parse request with formData body only", async () => {
+    it("TEST#2: should parse request with formData body only", async () => {
       const formData = new FormData();
       formData.append("name", "John");
 
@@ -149,7 +149,7 @@ describe("requestSchema", () => {
   });
 
   describe("searchParams and body", () => {
-    it("should parse request with both search params and JSON body", async () => {
+    it("TEST#1, TEST#2: should parse request with both search params and JSON body", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           filter: z.string(),
@@ -188,7 +188,7 @@ describe("requestSchema", () => {
       expect(bodyObject.value).toBe("test");
     });
 
-    it("should parse request with both search params and formData body", async () => {
+    it("TEST#1, TEST#2: should parse request with both search params and formData body", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           action: z.string(),
@@ -236,7 +236,7 @@ describe("requestSchema", () => {
     // These tests use TypeScript's type system to catch regressions at compile time
     // If bodyObject becomes optional when it shouldn't be, these will fail to compile
 
-    it("should ensure bodyObject is never undefined when body schema is provided", async () => {
+    it("TEST#4: should ensure bodyObject is never undefined when body schema is provided", async () => {
       const body = bodySchema({
         json: z.object({ value: z.string() }),
       });
@@ -260,7 +260,7 @@ describe("requestSchema", () => {
       expect(bodyObject.value).toBe("test");
     });
 
-    it("should ensure bodyObject is undefined when body schema is not provided", async () => {
+    it("TEST#4: should ensure bodyObject is undefined when body schema is not provided", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -275,7 +275,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toBeUndefined();
     });
 
-    it("should ensure bodyObject type matches the body schema type", async () => {
+    it("TEST#4: should ensure bodyObject type matches the body schema type", async () => {
       const body = bodySchema({
         formData: z.object({
           name: z.string(),
@@ -303,7 +303,7 @@ describe("requestSchema", () => {
   });
 
   describe("headers only", () => {
-    it("should parse request with headers only", async () => {
+    it("TEST#3: should parse request with headers only", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -335,7 +335,7 @@ describe("requestSchema", () => {
       });
     });
 
-    it("should handle empty headers", async () => {
+    it("TEST#3: should handle empty headers", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string().optional(),
@@ -357,7 +357,7 @@ describe("requestSchema", () => {
   });
 
   describe("headers with searchParams", () => {
-    it("should parse request with headers and search params", async () => {
+    it("TEST#1, TEST#3: should parse request with headers and search params", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -391,7 +391,7 @@ describe("requestSchema", () => {
   });
 
   describe("headers with body", () => {
-    it("should parse request with headers and JSON body", async () => {
+    it("TEST#2, TEST#3: should parse request with headers and JSON body", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -429,7 +429,7 @@ describe("requestSchema", () => {
   });
 
   describe("headers with searchParams and body", () => {
-    it("should parse request with headers, search params, and JSON body", async () => {
+    it("TEST#1, TEST#2, TEST#3: should parse request with headers, search params, and JSON body", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -474,7 +474,7 @@ describe("requestSchema", () => {
   });
 
   describe("neither searchParams nor body", () => {
-    it("should parse request with neither search params nor body", async () => {
+    it("TEST#12: should parse request with neither search params nor body", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -492,7 +492,7 @@ describe("requestSchema", () => {
   });
 
   describe("error handling", () => {
-    it("should throw error when input is not Request", async () => {
+    it("TEST#11: should throw error when input is not Request", async () => {
       const schema = requestSchema({});
 
       await expect(schema.parseAsync("not-a-request")).rejects.toThrow(
@@ -500,7 +500,7 @@ describe("requestSchema", () => {
       );
     });
 
-    it("should throw validation error for invalid search params", async () => {
+    it("TEST#1, TEST#11: should throw validation error for invalid search params", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           age: z.string().transform((val) => {
@@ -524,7 +524,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should throw validation error for invalid body", async () => {
+    it("TEST#2, TEST#11: should throw validation error for invalid body", async () => {
       const body = bodySchema({
         json: z.object({ age: z.number() }),
       });
@@ -542,7 +542,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should throw validation error for missing body", async () => {
+    it("TEST#2, TEST#11: should throw validation error for missing body", async () => {
       const body = bodySchema({
         json: z.object({ age: z.number() }),
       });
@@ -559,7 +559,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should throw validation error for invalid headers", async () => {
+    it("TEST#3, TEST#11: should throw validation error for invalid headers", async () => {
       const headers = headersSchema(
         z.object({
           "x-api-version": z.string().transform((val) => {
@@ -584,7 +584,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should throw validation error for missing headers", async () => {
+    it("TEST#3, TEST#11: should throw validation error for missing headers", async () => {
       const headers = headersSchema(
         z.object({
           "x-api-version": z.string().transform((val) => {
@@ -610,7 +610,7 @@ describe("requestSchema", () => {
   });
 
   describe("URL handling", () => {
-    it("should correctly parse URL with path and query", async () => {
+    it("TEST#5: should correctly parse URL with path and query", async () => {
       const request = new Request("https://example.com/api/users?page=1", {
         method: "GET",
       });
@@ -623,7 +623,7 @@ describe("requestSchema", () => {
       expect(result.url.search).toBe("?page=1");
     });
 
-    it("should handle URL with hash", async () => {
+    it("TEST#5: should handle URL with hash", async () => {
       const request = new Request("https://example.com#section", {
         method: "GET",
       });
@@ -635,7 +635,7 @@ describe("requestSchema", () => {
       expect(result.url.hash).toBe("#section");
     });
 
-    it("should handle URL with port number", async () => {
+    it("TEST#5: should handle URL with port number", async () => {
       const request = new Request("https://example.com:8080/api", {
         method: "GET",
       });
@@ -648,7 +648,7 @@ describe("requestSchema", () => {
       expect(result.url.pathname).toBe("/api");
     });
 
-    it("should handle URL parsing (credentials not supported in Request constructor)", async () => {
+    it("TEST#5: should handle URL parsing (credentials not supported in Request constructor)", async () => {
       // Note: Request constructor doesn't allow credentials in URL for security reasons
       // This test documents that URLs are parsed correctly when valid
       const request = new Request("https://example.com/api", {
@@ -663,7 +663,7 @@ describe("requestSchema", () => {
       expect(result.url.hostname).toBe("example.com");
     });
 
-    it("should handle URL with encoded special characters in path", async () => {
+    it("TEST#5: should handle URL with encoded special characters in path", async () => {
       const request = new Request(
         "https://example.com/api/users%20list?name=John",
         {
@@ -681,7 +681,7 @@ describe("requestSchema", () => {
       expect(result.url.search).toBe("?name=John");
     });
 
-    it("should throw error when URL has multiple query params with same key but schema is not array", async () => {
+    it("TEST#1, TEST#11: should throw error when URL has multiple query params with same key but schema is not array", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           tag: z.string(),
@@ -699,7 +699,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should return array when URL has multiple query params with same key and schema is array", async () => {
+    it("TEST#1: should return array when URL has multiple query params with same key and schema is array", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           tag: z.array(z.string()),
@@ -719,7 +719,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ tag: ["first", "second"] });
     });
 
-    it("should handle URL parsing (relative URLs require base URL)", async () => {
+    it("TEST#5: should handle URL parsing (relative URLs require base URL)", async () => {
       // Note: Request constructor requires absolute URLs
       // In real usage, relative URLs would be resolved against a base URL
       const request = new Request("https://example.com/api/users?page=1", {
@@ -734,7 +734,7 @@ describe("requestSchema", () => {
       expect(result.url.search).toBe("?page=1");
     });
 
-    it("should handle URL with empty path", async () => {
+    it("TEST#5: should handle URL with empty path", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -746,7 +746,7 @@ describe("requestSchema", () => {
       expect(result.url.pathname).toBe("/");
     });
 
-    it("should handle URL with fragment and query", async () => {
+    it("TEST#5: should handle URL with fragment and query", async () => {
       const request = new Request("https://example.com?page=1#section", {
         method: "GET",
       });
@@ -759,7 +759,7 @@ describe("requestSchema", () => {
       expect(result.url.hash).toBe("#section");
     });
 
-    it("should handle very long URL", async () => {
+    it("TEST#5: should handle very long URL", async () => {
       const longPath = "/" + "a".repeat(1000);
       const request = new Request(`https://example.com${longPath}`, {
         method: "GET",
@@ -772,7 +772,7 @@ describe("requestSchema", () => {
       expect(result.url.pathname).toBe(longPath);
     });
 
-    it("should handle URL parsing (URL constructor is lenient)", async () => {
+    it("TEST#5: should handle URL parsing (URL constructor is lenient)", async () => {
       // Note: The URL constructor is quite lenient and may accept various formats
       // This test documents that URL parsing works for valid URLs
       const request = new Request("https://example.com", {
@@ -789,7 +789,7 @@ describe("requestSchema", () => {
   });
 
   describe("method validation", () => {
-    it("should validate GET method with z.literal", async () => {
+    it("TEST#6: should validate GET method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -803,7 +803,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("GET");
     });
 
-    it("should validate POST method with z.literal", async () => {
+    it("TEST#6: should validate POST method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "POST",
       });
@@ -817,7 +817,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("POST");
     });
 
-    it("should validate PUT method with z.literal", async () => {
+    it("TEST#6: should validate PUT method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "PUT",
       });
@@ -831,7 +831,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("PUT");
     });
 
-    it("should validate PATCH method with z.literal", async () => {
+    it("TEST#6: should validate PATCH method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "PATCH",
       });
@@ -845,7 +845,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("PATCH");
     });
 
-    it("should validate DELETE method with z.literal", async () => {
+    it("TEST#6: should validate DELETE method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "DELETE",
       });
@@ -859,7 +859,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("DELETE");
     });
 
-    it("should validate HEAD method with z.literal", async () => {
+    it("TEST#6: should validate HEAD method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "HEAD",
       });
@@ -873,7 +873,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("HEAD");
     });
 
-    it("should validate OPTIONS method with z.literal", async () => {
+    it("TEST#6: should validate OPTIONS method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "OPTIONS",
       });
@@ -887,7 +887,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("OPTIONS");
     });
 
-    it("should reject invalid method with z.literal", async () => {
+    it("TEST#6, TEST#11: should reject invalid method with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "POST",
       });
@@ -899,7 +899,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate method with httpMethodSchema helper", async () => {
+    it("TEST#6: should validate method with httpMethodSchema helper", async () => {
       const request = new Request("https://example.com", {
         method: "POST",
       });
@@ -913,7 +913,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("POST");
     });
 
-    it("should validate method with httpMethodEnumSchema", async () => {
+    it("TEST#6: should validate method with httpMethodEnumSchema", async () => {
       const request = new Request("https://example.com", {
         method: "PUT",
       });
@@ -927,7 +927,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("PUT");
     });
 
-    it("should reject invalid method with httpMethodEnumSchema", async () => {
+    it("TEST#6, TEST#11: should reject invalid method with httpMethodEnumSchema", async () => {
       const request = new Request("https://example.com", {
         method: "INVALID",
       });
@@ -939,7 +939,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate method combined with searchParams", async () => {
+    it("TEST#1, TEST#6: should validate method combined with searchParams", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           id: z.string(),
@@ -961,7 +961,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ id: "123" });
     });
 
-    it("should validate method combined with body", async () => {
+    it("TEST#2, TEST#6: should validate method combined with body", async () => {
       const body = bodySchema({
         json: z.object({ name: z.string() }),
       });
@@ -993,7 +993,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ name: "John" });
     });
 
-    it("should validate method combined with headers", async () => {
+    it("TEST#3, TEST#6: should validate method combined with headers", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -1020,7 +1020,7 @@ describe("requestSchema", () => {
       });
     });
 
-    it("should validate method combined with searchParams, body, and headers", async () => {
+    it("TEST#1, TEST#2, TEST#3, TEST#6: should validate method combined with searchParams, body, and headers", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           filter: z.string(),
@@ -1073,7 +1073,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ value: "test" });
     });
 
-    it("should not include method in result when method schema is not provided", async () => {
+    it("TEST#6: should not include method in result when method schema is not provided", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1087,7 +1087,7 @@ describe("requestSchema", () => {
       expect((result as any).method).toBeUndefined();
     });
 
-    it("should reject request when method does not match schema", async () => {
+    it("TEST#6, TEST#11: should reject request when method does not match schema", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1099,7 +1099,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should reject request when method is invalid with httpMethodSchema", async () => {
+    it("TEST#6, TEST#11: should reject request when method is invalid with httpMethodSchema", async () => {
       const request = new Request("https://example.com", {
         method: "INVALID",
       });
@@ -1111,7 +1111,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should handle method validation (Request API normalizes methods to uppercase)", async () => {
+    it("TEST#6: should handle method validation (Request API normalizes methods to uppercase)", async () => {
       // Note: The Request API normalizes HTTP methods to uppercase
       // So "post" becomes "POST" automatically
       const request = new Request("https://example.com", {
@@ -1129,7 +1129,7 @@ describe("requestSchema", () => {
       expect(request.method).toBe("POST");
     });
 
-    it("should validate same-origin mode with z.literal", async () => {
+    it("TEST#7: should validate same-origin mode with z.literal", async () => {
       const request = new Request("https://example.com", {
         mode: "same-origin",
       });
@@ -1143,7 +1143,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("same-origin");
     });
 
-    it("should validate no-cors mode with z.literal", async () => {
+    it("TEST#7: should validate no-cors mode with z.literal", async () => {
       const request = new Request("https://example.com", {
         mode: "no-cors",
       });
@@ -1157,7 +1157,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("no-cors");
     });
 
-    it("should validate cors mode with z.literal", async () => {
+    it("TEST#7: should validate cors mode with z.literal", async () => {
       const request = new Request("https://example.com", {
         mode: "cors",
       });
@@ -1171,7 +1171,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("cors");
     });
 
-    it("should validate navigate mode with z.literal", async () => {
+    it("TEST#7: should validate navigate mode with z.literal", async () => {
       // Note: "navigate" mode cannot be set in Request constructor
       // It's only used internally by the browser for navigation requests
       // We'll test it by creating a request and manually setting the mode property
@@ -1192,7 +1192,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("navigate");
     });
 
-    it("should reject invalid mode with z.literal", async () => {
+    it("TEST#7, TEST#11: should reject invalid mode with z.literal", async () => {
       const request = new Request("https://example.com", {
         mode: "cors",
       });
@@ -1204,7 +1204,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate mode with requestModeEnumSchema", async () => {
+    it("TEST#7: should validate mode with requestModeEnumSchema", async () => {
       const request = new Request("https://example.com", {
         mode: "no-cors",
       });
@@ -1218,7 +1218,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("no-cors");
     });
 
-    it("should reject invalid mode with requestModeEnumSchema", async () => {
+    it("TEST#7, TEST#11: should reject invalid mode with requestModeEnumSchema", async () => {
       // Note: Request constructor validates mode, so we can't create a Request with invalid mode
       // We'll test it by creating a request and manually setting an invalid mode property
       const request = new Request("https://example.com");
@@ -1236,7 +1236,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate mode combined with searchParams", async () => {
+    it("TEST#1, TEST#7: should validate mode combined with searchParams", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           id: z.string(),
@@ -1258,7 +1258,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ id: "123" });
     });
 
-    it("should validate mode combined with body", async () => {
+    it("TEST#2, TEST#7: should validate mode combined with body", async () => {
       const body = bodySchema({
         json: z.object({ name: z.string() }),
       });
@@ -1291,7 +1291,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ name: "John" });
     });
 
-    it("should validate mode combined with headers", async () => {
+    it("TEST#3, TEST#7: should validate mode combined with headers", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -1318,7 +1318,7 @@ describe("requestSchema", () => {
       });
     });
 
-    it("should validate mode combined with method", async () => {
+    it("TEST#6, TEST#7: should validate mode combined with method", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
         mode: "cors",
@@ -1335,7 +1335,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("cors");
     });
 
-    it("should validate mode combined with searchParams, body, headers, and method", async () => {
+    it("TEST#1, TEST#2, TEST#3, TEST#6, TEST#7: should validate mode combined with searchParams, body, headers, and method", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           filter: z.string(),
@@ -1391,7 +1391,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ value: "test" });
     });
 
-    it("should not include mode in result when mode schema is not provided", async () => {
+    it("TEST#7: should not include mode in result when mode schema is not provided", async () => {
       const request = new Request("https://example.com", {
         mode: "cors",
       });
@@ -1405,7 +1405,7 @@ describe("requestSchema", () => {
       expect((result as any).mode).toBeUndefined();
     });
 
-    it("should reject request when mode does not match schema", async () => {
+    it("TEST#7, TEST#11: should reject request when mode does not match schema", async () => {
       const request = new Request("https://example.com", {
         mode: "cors",
       });
@@ -1419,7 +1419,7 @@ describe("requestSchema", () => {
   });
 
   describe("protocol validation", () => {
-    it("should validate https protocol with z.literal", async () => {
+    it("TEST#8: should validate https protocol with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1433,7 +1433,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBe("https");
     });
 
-    it("should validate http protocol with z.literal", async () => {
+    it("TEST#8: should validate http protocol with z.literal", async () => {
       const request = new Request("http://example.com", {
         method: "GET",
       });
@@ -1447,7 +1447,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBe("http");
     });
 
-    it("should reject invalid protocol with z.literal", async () => {
+    it("TEST#8, TEST#11: should reject invalid protocol with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1459,7 +1459,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate protocol with protocolSchema helper", async () => {
+    it("TEST#8: should validate protocol with protocolSchema helper", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1473,7 +1473,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBe("https");
     });
 
-    it("should validate protocol with protocolEnumSchema", async () => {
+    it("TEST#8: should validate protocol with protocolEnumSchema", async () => {
       const request = new Request("http://example.com", {
         method: "GET",
       });
@@ -1487,7 +1487,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBe("http");
     });
 
-    it("should reject invalid protocol with protocolEnumSchema", async () => {
+    it("TEST#8, TEST#11: should reject invalid protocol with protocolEnumSchema", async () => {
       const request = new Request("ftp://example.com", {
         method: "GET",
       });
@@ -1499,7 +1499,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate protocol combined with searchParams", async () => {
+    it("TEST#1, TEST#8: should validate protocol combined with searchParams", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           id: z.string(),
@@ -1521,7 +1521,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ id: "123" });
     });
 
-    it("should validate protocol combined with body", async () => {
+    it("TEST#2, TEST#8: should validate protocol combined with body", async () => {
       const body = bodySchema({
         json: z.object({ name: z.string() }),
       });
@@ -1553,7 +1553,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ name: "John" });
     });
 
-    it("should validate protocol combined with headers", async () => {
+    it("TEST#3, TEST#8: should validate protocol combined with headers", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -1580,7 +1580,7 @@ describe("requestSchema", () => {
       });
     });
 
-    it("should validate protocol combined with method", async () => {
+    it("TEST#6, TEST#8: should validate protocol combined with method", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1596,7 +1596,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("GET");
     });
 
-    it("should validate protocol combined with mode", async () => {
+    it("TEST#7, TEST#8: should validate protocol combined with mode", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
         mode: "cors",
@@ -1613,7 +1613,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("cors");
     });
 
-    it("should validate protocol combined with searchParams, body, headers, method, and mode", async () => {
+    it("TEST#1, TEST#2, TEST#3, TEST#6, TEST#7, TEST#8: should validate protocol combined with searchParams, body, headers, method, and mode", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           filter: z.string(),
@@ -1671,7 +1671,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ value: "test" });
     });
 
-    it("should not include protocol in result when protocol schema is not provided", async () => {
+    it("TEST#8: should not include protocol in result when protocol schema is not provided", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1685,7 +1685,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBeUndefined();
     });
 
-    it("should reject request when protocol does not match schema", async () => {
+    it("TEST#8, TEST#11: should reject request when protocol does not match schema", async () => {
       const request = new Request("http://example.com", {
         method: "GET",
       });
@@ -1697,7 +1697,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should reject request when protocol is invalid with protocolSchema", async () => {
+    it("TEST#8, TEST#11: should reject request when protocol is invalid with protocolSchema", async () => {
       const request = new Request("ftp://example.com", {
         method: "GET",
       });
@@ -1711,7 +1711,7 @@ describe("requestSchema", () => {
   });
 
   describe("hostname validation", () => {
-    it("should validate hostname with z.literal", async () => {
+    it("TEST#9: should validate hostname with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1725,7 +1725,7 @@ describe("requestSchema", () => {
       expect(result.hostname).toBe("example.com");
     });
 
-    it("should validate hostname with z.string", async () => {
+    it("TEST#9: should validate hostname with z.string", async () => {
       const request = new Request("https://api.example.com", {
         method: "GET",
       });
@@ -1739,7 +1739,7 @@ describe("requestSchema", () => {
       expect(result.hostname).toBe("api.example.com");
     });
 
-    it("should validate hostname with z.string().includes()", async () => {
+    it("TEST#9: should validate hostname with z.string().includes()", async () => {
       const request = new Request("https://api.example.com", {
         method: "GET",
       });
@@ -1753,7 +1753,7 @@ describe("requestSchema", () => {
       expect(result.hostname).toBe("api.example.com");
     });
 
-    it("should reject invalid hostname with z.literal", async () => {
+    it("TEST#9, TEST#11: should reject invalid hostname with z.literal", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1765,7 +1765,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should reject hostname that doesn't match string validation", async () => {
+    it("TEST#9, TEST#11: should reject hostname that doesn't match string validation", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1777,7 +1777,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate hostname combined with searchParams", async () => {
+    it("TEST#1, TEST#9: should validate hostname combined with searchParams", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           id: z.string(),
@@ -1799,7 +1799,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ id: "123" });
     });
 
-    it("should validate hostname combined with body", async () => {
+    it("TEST#2, TEST#9: should validate hostname combined with body", async () => {
       const body = bodySchema({
         json: z.object({ name: z.string() }),
       });
@@ -1831,7 +1831,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ name: "John" });
     });
 
-    it("should validate hostname combined with headers", async () => {
+    it("TEST#3, TEST#9: should validate hostname combined with headers", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -1858,7 +1858,7 @@ describe("requestSchema", () => {
       });
     });
 
-    it("should validate hostname combined with method", async () => {
+    it("TEST#6, TEST#9: should validate hostname combined with method", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1874,7 +1874,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("GET");
     });
 
-    it("should validate hostname combined with mode", async () => {
+    it("TEST#7, TEST#9: should validate hostname combined with mode", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
         mode: "cors",
@@ -1891,7 +1891,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("cors");
     });
 
-    it("should validate hostname combined with protocol", async () => {
+    it("TEST#8, TEST#9: should validate hostname combined with protocol", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1907,7 +1907,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBe("https");
     });
 
-    it("should validate hostname combined with searchParams, body, headers, method, mode, and protocol", async () => {
+    it("TEST#1, TEST#2, TEST#3, TEST#6, TEST#7, TEST#8, TEST#9: should validate hostname combined with searchParams, body, headers, method, mode, and protocol", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           filter: z.string(),
@@ -1967,7 +1967,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ value: "test" });
     });
 
-    it("should not include hostname in result when hostname schema is not provided", async () => {
+    it("TEST#9: should not include hostname in result when hostname schema is not provided", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1981,7 +1981,7 @@ describe("requestSchema", () => {
       expect((result as any).hostname).toBeUndefined();
     });
 
-    it("should reject request when hostname does not match schema", async () => {
+    it("TEST#9, TEST#11: should reject request when hostname does not match schema", async () => {
       const request = new Request("https://example.com", {
         method: "GET",
       });
@@ -1993,7 +1993,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should handle hostname with port in URL", async () => {
+    it("TEST#9: should handle hostname with port in URL", async () => {
       const request = new Request("https://example.com:8080", {
         method: "GET",
       });
@@ -2008,7 +2008,7 @@ describe("requestSchema", () => {
       expect(result.hostname).toBe("example.com");
     });
 
-    it("should handle hostname with subdomain", async () => {
+    it("TEST#9: should handle hostname with subdomain", async () => {
       const request = new Request("https://api.example.com", {
         method: "GET",
       });
@@ -2022,7 +2022,7 @@ describe("requestSchema", () => {
       expect(result.hostname).toBe("api.example.com");
     });
 
-    it("should handle hostname validation with regex", async () => {
+    it("TEST#9: should handle hostname validation with regex", async () => {
       const request = new Request("https://api.example.com", {
         method: "GET",
       });
@@ -2038,7 +2038,7 @@ describe("requestSchema", () => {
   });
 
   describe("pathname validation", () => {
-    it("should validate pathname with z.literal", async () => {
+    it("TEST#10: should validate pathname with z.literal", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2052,7 +2052,7 @@ describe("requestSchema", () => {
       expect(result.pathname).toBe("/api/users");
     });
 
-    it("should validate pathname with z.string", async () => {
+    it("TEST#10: should validate pathname with z.string", async () => {
       const request = new Request("https://example.com/api/posts", {
         method: "GET",
       });
@@ -2066,7 +2066,7 @@ describe("requestSchema", () => {
       expect(result.pathname).toBe("/api/posts");
     });
 
-    it("should validate pathname with z.string().includes()", async () => {
+    it("TEST#10: should validate pathname with z.string().includes()", async () => {
       const request = new Request("https://example.com/api/users/123", {
         method: "GET",
       });
@@ -2080,7 +2080,7 @@ describe("requestSchema", () => {
       expect(result.pathname).toBe("/api/users/123");
     });
 
-    it("should reject invalid pathname with z.literal", async () => {
+    it("TEST#10, TEST#11: should reject invalid pathname with z.literal", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2092,7 +2092,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should reject pathname that doesn't match string validation", async () => {
+    it("TEST#10, TEST#11: should reject pathname that doesn't match string validation", async () => {
       const request = new Request("https://example.com/users", {
         method: "GET",
       });
@@ -2104,7 +2104,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should validate pathname combined with searchParams", async () => {
+    it("TEST#1, TEST#10: should validate pathname combined with searchParams", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           id: z.string(),
@@ -2126,7 +2126,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ id: "123" });
     });
 
-    it("should validate pathname combined with body", async () => {
+    it("TEST#2, TEST#10: should validate pathname combined with body", async () => {
       const body = bodySchema({
         json: z.object({ name: z.string() }),
       });
@@ -2158,7 +2158,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ name: "John" });
     });
 
-    it("should validate pathname combined with headers", async () => {
+    it("TEST#3, TEST#10: should validate pathname combined with headers", async () => {
       const headers = headersSchema(
         z.object({
           authorization: z.string(),
@@ -2185,7 +2185,7 @@ describe("requestSchema", () => {
       });
     });
 
-    it("should validate pathname combined with method", async () => {
+    it("TEST#6, TEST#10: should validate pathname combined with method", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2201,7 +2201,7 @@ describe("requestSchema", () => {
       expect(result.method).toBe("GET");
     });
 
-    it("should validate pathname combined with mode", async () => {
+    it("TEST#7, TEST#10: should validate pathname combined with mode", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
         mode: "cors",
@@ -2218,7 +2218,7 @@ describe("requestSchema", () => {
       expect(result.mode).toBe("cors");
     });
 
-    it("should validate pathname combined with protocol", async () => {
+    it("TEST#8, TEST#10: should validate pathname combined with protocol", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2234,7 +2234,7 @@ describe("requestSchema", () => {
       expect((result as any).protocol).toBe("https");
     });
 
-    it("should validate pathname combined with hostname", async () => {
+    it("TEST#9, TEST#10: should validate pathname combined with hostname", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2252,7 +2252,7 @@ describe("requestSchema", () => {
       expect(result.hostname).toBe("example.com");
     });
 
-    it("should validate pathname combined with searchParams, body, headers, method, mode, protocol, and hostname", async () => {
+    it("TEST#1, TEST#2, TEST#3, TEST#6, TEST#7, TEST#8, TEST#9, TEST#10: should validate pathname combined with searchParams, body, headers, method, mode, protocol, and hostname", async () => {
       const searchParams = searchParamsSchema(
         z.object({
           filter: z.string(),
@@ -2317,7 +2317,7 @@ describe("requestSchema", () => {
       expect(bodyObject).toEqual({ value: "test" });
     });
 
-    it("should not include pathname in result when pathname schema is not provided", async () => {
+    it("TEST#10: should not include pathname in result when pathname schema is not provided", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2331,7 +2331,7 @@ describe("requestSchema", () => {
       expect((result as any).pathname).toBeUndefined();
     });
 
-    it("should reject request when pathname does not match schema", async () => {
+    it("TEST#10, TEST#11: should reject request when pathname does not match schema", async () => {
       const request = new Request("https://example.com/api/users", {
         method: "GET",
       });
@@ -2343,7 +2343,7 @@ describe("requestSchema", () => {
       await expect(schema.parseAsync(request)).rejects.toThrow();
     });
 
-    it("should handle pathname with root path", async () => {
+    it("TEST#10: should handle pathname with root path", async () => {
       const request = new Request("https://example.com/", {
         method: "GET",
       });
@@ -2357,7 +2357,7 @@ describe("requestSchema", () => {
       expect(result.pathname).toBe("/");
     });
 
-    it("should handle pathname with query parameters", async () => {
+    it("TEST#10: should handle pathname with query parameters", async () => {
       const request = new Request("https://example.com/api/users?page=1", {
         method: "GET",
       });
@@ -2372,7 +2372,7 @@ describe("requestSchema", () => {
       expect(result.pathname).toBe("/api/users");
     });
 
-    it("should handle pathname validation with regex", async () => {
+    it("TEST#10: should handle pathname validation with regex", async () => {
       const request = new Request("https://example.com/api/users/123", {
         method: "GET",
       });
@@ -2386,7 +2386,7 @@ describe("requestSchema", () => {
       expect(result.pathname).toBe("/api/users/123");
     });
 
-    it("should handle pathname with special characters", async () => {
+    it("TEST#10: should handle pathname with special characters", async () => {
       const request = new Request("https://example.com/api/users%20list", {
         method: "GET",
       });

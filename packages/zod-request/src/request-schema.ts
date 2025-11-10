@@ -135,6 +135,7 @@ function buildResultSchema<
   }
 
   // Body fields
+  // TEST#4 - Type safety regression prevention tests
   if (config.body) {
     fields.body = z
       .instanceof(ReadableStream)
@@ -187,6 +188,7 @@ function buildResultSchema<
  * @param urlObj - The URL object
  * @returns The parsed search params
  */
+// TEST#1 - All search params processing tests
 async function processSearchParams<TSearchParams extends z.ZodTypeAny>(
   searchParams: TSearchParams,
   urlObj: URL
@@ -211,6 +213,7 @@ async function processSearchParams<TSearchParams extends z.ZodTypeAny>(
  * @param requestHeaders - The request headers
  * @returns The parsed headers
  */
+// TEST#3 - All headers processing tests
 async function processHeaders<THeaders extends z.ZodTypeAny>(
   headers: THeaders,
   requestHeaders: Headers
@@ -233,6 +236,7 @@ async function processHeaders<THeaders extends z.ZodTypeAny>(
  * @param request - The request
  * @returns The parsed body
  */
+// TEST#2 - All body processing tests
 async function processBody<TBody extends z.ZodTypeAny>(
   body: TBody,
   request: Request
@@ -342,10 +346,12 @@ export const requestSchema = <
   const resultSchema = buildResultSchema(config, undefined as BodyType);
 
   return z.preprocess(async (val) => {
+    // TEST#11 - Error handling for non-Request input
     if (!(val instanceof Request)) {
       throw new Error(ERROR_EXPECTED_REQUEST);
     }
 
+    // TEST#5 - URL handling tests
     const urlObj = new URL(val.url);
 
     // Process search params
@@ -369,24 +375,30 @@ export const requestSchema = <
     const originalHeaders = headers ? val.headers : undefined;
 
     // Process simple string-based fields
+    // TEST#6 - Method validation tests
     const methodValue = method
       ? await processSimpleField(method, val.method)
       : undefined;
+    // TEST#7 - Mode validation tests
     const modeValue = mode
       ? await processSimpleField(mode, val.mode)
       : undefined;
 
     // Process URL-based fields
+    // TEST#8 - Protocol validation tests
     const protocolValue = protocol
       ? await processSimpleField(protocol, urlObj.protocol.replace(":", ""))
       : undefined;
+    // TEST#9 - Hostname validation tests
     const hostnameValue = hostname
       ? await processSimpleField(hostname, urlObj.hostname)
       : undefined;
+    // TEST#10 - Pathname validation tests
     const pathnameValue = pathname
       ? await processSimpleField(pathname, urlObj.pathname)
       : undefined;
 
+    // TEST#12 - Empty request (no searchParams, body, or headers)
     return {
       url: urlObj,
       searchParamsObject,
