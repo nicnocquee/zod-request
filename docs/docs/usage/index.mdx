@@ -49,9 +49,9 @@ export async function POST(request: Request) {
   const validatedRequest = await schema.parseAsync(request);
 
   // All validated data is now type-safe
-  const filter = validatedRequest.searchParamsObject?.filter;
-  const name = validatedRequest.body?.name;
-  const auth = validatedRequest.headers?.authorization;
+  const filter = validatedRequest.searchParamsObject.filter;
+  const name = validatedRequest.bodyObject.name;
+  const auth = validatedRequest.headers.authorization;
   const method = validatedRequest.method; // "POST"
 }
 ```
