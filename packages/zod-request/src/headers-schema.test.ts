@@ -3,7 +3,7 @@ import { z } from "zod";
 import { headersSchema } from "./headers-schema";
 
 describe("headersSchema", () => {
-  it("should parse valid headers", () => {
+  it("TEST#1: should parse valid headers", () => {
     const schema = z.object({
       authorization: z.string(),
       "content-type": z.string(),
@@ -21,7 +21,7 @@ describe("headersSchema", () => {
     });
   });
 
-  it("should handle missing headers as undefined", () => {
+  it("TEST#1: should handle missing headers as undefined", () => {
     const schema = z.object({
       authorization: z.string().optional(),
       "content-type": z.string().optional(),
@@ -38,7 +38,7 @@ describe("headersSchema", () => {
     });
   });
 
-  it("should throw error when input is not Headers", () => {
+  it("TEST#1, TEST#2: should throw error when input is not Headers", () => {
     const schema = z.object({
       authorization: z.string(),
     });
@@ -50,7 +50,7 @@ describe("headersSchema", () => {
     }).toThrow("Expected Headers");
   });
 
-  it("should validate schema constraints", () => {
+  it("TEST#1: should validate schema constraints", () => {
     const schema = z.object({
       "x-api-version": z.string().transform((val) => Number(val)),
     });
@@ -63,7 +63,7 @@ describe("headersSchema", () => {
     expect(result).toEqual({ "x-api-version": 2 });
   });
 
-  it("should handle empty headers", () => {
+  it("TEST#1: should handle empty headers", () => {
     const schema = z.object({
       authorization: z.string().optional(),
     });
@@ -75,7 +75,7 @@ describe("headersSchema", () => {
     expect(result).toEqual({ authorization: undefined });
   });
 
-  it("should only extract keys defined in schema", () => {
+  it("TEST#1: should only extract keys defined in schema", () => {
     const schema = z.object({
       authorization: z.string(),
     });
@@ -90,7 +90,7 @@ describe("headersSchema", () => {
     expect(result).not.toHaveProperty("x-custom-header");
   });
 
-  it("should handle object with get method (Headers-like)", () => {
+  it("TEST#1: should handle object with get method (Headers-like)", () => {
     const schema = z.object({
       authorization: z.string(),
     });
@@ -105,7 +105,7 @@ describe("headersSchema", () => {
     expect(result).toEqual({ authorization: "Bearer token123" });
   });
 
-  it("should throw error for null input", () => {
+  it("TEST#1, TEST#2: should throw error for null input", () => {
     const schema = z.object({
       authorization: z.string(),
     });
@@ -117,7 +117,7 @@ describe("headersSchema", () => {
     }).toThrow("Expected Headers");
   });
 
-  it("should throw error for undefined input", () => {
+  it("TEST#1, TEST#2: should throw error for undefined input", () => {
     const schema = z.object({
       authorization: z.string(),
     });
@@ -129,7 +129,7 @@ describe("headersSchema", () => {
     }).toThrow("Expected Headers");
   });
 
-  it("should handle empty string values", () => {
+  it("TEST#1: should handle empty string values", () => {
     const schema = z.object({
       empty: z.string(),
       optional: z.string().optional(),
@@ -143,7 +143,7 @@ describe("headersSchema", () => {
     expect(result).toEqual({ empty: "", optional: undefined });
   });
 
-  it("should handle header names (Headers are case-insensitive)", () => {
+  it("TEST#1: should handle header names (Headers are case-insensitive)", () => {
     const schema = z.object({
       Authorization: z.string(),
       "Content-Type": z.string(),
@@ -165,7 +165,7 @@ describe("headersSchema", () => {
     });
   });
 
-  it("should handle object without get method", () => {
+  it("TEST#1, TEST#2: should handle object without get method", () => {
     const schema = z.object({
       authorization: z.string(),
     });

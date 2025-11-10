@@ -53,19 +53,19 @@ export function extractSearchParamsObject(
 
     const isArray = isArraySchema(fieldSchema);
 
-    // Get all values for this key
+    // TEST#1 - Get all values for this key
     let allValues: string[];
     if (params instanceof URLSearchParams) {
       allValues = params.getAll(key);
     } else if (typeof params.getAll === "function") {
       allValues = params.getAll(key);
     } else {
-      // Fallback for URLSearchParams-like objects without getAll
+      // TEST#1 - Fallback for URLSearchParams-like objects without getAll
       const value = params.get(key);
       allValues = value !== null ? [value] : [];
     }
 
-    // If multiple values exist, require array schema
+    // TEST#1, TEST#2 - If multiple values exist, require array schema
     if (allValues.length > 1 && !isArray) {
       throw new z.ZodError([
         {
@@ -76,11 +76,11 @@ export function extractSearchParamsObject(
       ]);
     }
 
-    // If array schema, always return array (even if single value)
+    // TEST#1 - If array schema, always return array (even if single value)
     if (isArray) {
       obj[key] = allValues.length > 0 ? allValues : undefined;
     } else {
-      // Single value schema - return first value or undefined
+      // TEST#1 - Single value schema - return first value or undefined
       obj[key] = allValues.length > 0 ? allValues[0] : undefined;
     }
   }

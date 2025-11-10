@@ -4,7 +4,7 @@ import { bodySchema } from "./body-schema";
 
 describe("bodySchema", () => {
   describe("JSON body", () => {
-    it("TEST#2: should parse valid JSON body", async () => {
+    it("TEST#1: should parse valid JSON body", async () => {
       const schema = z.object({
         name: z.string(),
         age: z.number(),
@@ -22,7 +22,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ name: "John", age: 30 });
     });
 
-    it("TEST#2: should handle JSON with charset", async () => {
+    it("TEST#1: should handle JSON with charset", async () => {
       const schema = z.object({
         value: z.string(),
       });
@@ -39,7 +39,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ value: "test" });
     });
 
-    it("TEST#2, TEST#11: should throw validation error for invalid JSON", async () => {
+    it("TEST#1, TEST#2: should throw validation error for invalid JSON", async () => {
       const schema = z.object({
         age: z.number(),
       });
@@ -55,7 +55,7 @@ describe("bodySchema", () => {
       await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow();
     });
 
-    it("TEST#2, TEST#11: should throw error for malformed JSON syntax", async () => {
+    it("TEST#1, TEST#2: should throw error for malformed JSON syntax", async () => {
       const schema = z.object({
         value: z.string(),
       });
@@ -71,7 +71,7 @@ describe("bodySchema", () => {
       await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow();
     });
 
-    it("TEST#2: should handle empty JSON body", async () => {
+    it("TEST#1: should handle empty JSON body", async () => {
       const schema = z.object({
         value: z.string().optional(),
       });
@@ -88,7 +88,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ value: undefined });
     });
 
-    it("TEST#2: should handle JSON with array root", async () => {
+    it("TEST#1: should handle JSON with array root", async () => {
       const schema = z.array(z.string());
 
       const request = new Request("https://example.com", {
@@ -103,7 +103,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual(["a", "b", "c"]);
     });
 
-    it("TEST#2: should handle JSON with null root", async () => {
+    it("TEST#1: should handle JSON with null root", async () => {
       const schema = z.null();
 
       const request = new Request("https://example.com", {
@@ -118,7 +118,7 @@ describe("bodySchema", () => {
       expect(result.body).toBeNull();
     });
 
-    it("TEST#2: should handle content-type with whitespace", async () => {
+    it("TEST#1: should handle content-type with whitespace", async () => {
       const schema = z.object({
         value: z.string(),
       });
@@ -135,7 +135,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ value: "test" });
     });
 
-    it("TEST#2: should handle case-insensitive content-type (note: implementation is case-sensitive)", async () => {
+    it("TEST#1: should handle case-insensitive content-type (note: implementation is case-sensitive)", async () => {
       const schema = z.object({
         value: z.string(),
       });
@@ -154,7 +154,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ value: "test" });
     });
 
-    it("TEST#2: should handle content-type with multiple parameters", async () => {
+    it("TEST#1: should handle content-type with multiple parameters", async () => {
       const schema = z.object({
         value: z.string(),
       });
@@ -175,7 +175,7 @@ describe("bodySchema", () => {
   });
 
   describe("formData body", () => {
-    it("TEST#2: should parse multipart/form-data", async () => {
+    it("TEST#1: should parse multipart/form-data", async () => {
       const schema = z.object({
         name: z.string(),
         age: z.string(),
@@ -196,7 +196,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ name: "John", age: "30" });
     });
 
-    it("TEST#2: should parse application/x-www-form-urlencoded", async () => {
+    it("TEST#1: should parse application/x-www-form-urlencoded", async () => {
       const schema = z.object({
         name: z.string(),
         email: z.string(),
@@ -221,7 +221,7 @@ describe("bodySchema", () => {
       });
     });
 
-    it("TEST#2: should handle non-string form data values as undefined", async () => {
+    it("TEST#1: should handle non-string form data values as undefined", async () => {
       const schema = z.object({
         name: z.string().optional(),
         file: z.string().optional(),
@@ -242,7 +242,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ name: "John", file: undefined });
     });
 
-    it("TEST#2, TEST#11: should throw validation error for invalid formData", async () => {
+    it("TEST#1, TEST#2: should throw validation error for invalid formData", async () => {
       const schema = z.object({
         age: z.string().transform((val) => {
           const num = Number(val);
@@ -268,7 +268,7 @@ describe("bodySchema", () => {
       await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow();
     });
 
-    it("TEST#2: should handle empty FormData", async () => {
+    it("TEST#1: should handle empty FormData", async () => {
       const schema = z.object({
         name: z.string().optional(),
       });
@@ -286,7 +286,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ name: undefined });
     });
 
-    it("TEST#2: should handle FormData with multiple values for same key", async () => {
+    it("TEST#1: should handle FormData with multiple values for same key", async () => {
       const schema = z.object({
         tag: z.string(),
       });
@@ -312,7 +312,7 @@ describe("bodySchema", () => {
       }
     });
 
-    it("TEST#2: should handle empty string form values", async () => {
+    it("TEST#1: should handle empty string form values", async () => {
       const schema = z.object({
         empty: z.string(),
         optional: z.string().optional(),
@@ -332,7 +332,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ empty: "", optional: undefined });
     });
 
-    it("TEST#2: should handle urlencoded with special characters", async () => {
+    it("TEST#1: should handle urlencoded with special characters", async () => {
       const schema = z.object({
         query: z.string(),
         value: z.string(),
@@ -357,7 +357,7 @@ describe("bodySchema", () => {
       });
     });
 
-    it("TEST#2: should handle multipart/form-data without boundary in content-type (may fail in some environments)", async () => {
+    it("TEST#1: should handle multipart/form-data without boundary in content-type (may fail in some environments)", async () => {
       const schema = z.object({
         name: z.string(),
       });
@@ -384,7 +384,7 @@ describe("bodySchema", () => {
       }
     });
 
-    it("TEST#2: should handle urlencoded with empty body", async () => {
+    it("TEST#1: should handle urlencoded with empty body", async () => {
       const schema = z.object({
         name: z.string().optional(),
       });
@@ -403,7 +403,7 @@ describe("bodySchema", () => {
   });
 
   describe("text body", () => {
-    it("TEST#2: should parse text body", async () => {
+    it("TEST#1: should parse text body", async () => {
       const schema = z.string();
 
       const request = new Request("https://example.com", {
@@ -418,7 +418,7 @@ describe("bodySchema", () => {
       expect(result.body).toBe("Hello, World!");
     });
 
-    it("TEST#2: should validate text with schema", async () => {
+    it("TEST#1: should validate text with schema", async () => {
       const schema = z.string().min(5);
 
       const request = new Request("https://example.com", {
@@ -433,7 +433,7 @@ describe("bodySchema", () => {
       expect(result.body).toBe("Hello");
     });
 
-    it("TEST#2, TEST#11: should throw validation error for invalid text", async () => {
+    it("TEST#1, TEST#2: should throw validation error for invalid text", async () => {
       const schema = z.string().min(10);
 
       const request = new Request("https://example.com", {
@@ -447,7 +447,7 @@ describe("bodySchema", () => {
       await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow();
     });
 
-    it("TEST#2: should handle empty text body", async () => {
+    it("TEST#1: should handle empty text body", async () => {
       const schema = z.string();
 
       const request = new Request("https://example.com", {
@@ -462,7 +462,7 @@ describe("bodySchema", () => {
       expect(result.body).toBe("");
     });
 
-    it("TEST#2: should handle very long text body", async () => {
+    it("TEST#1: should handle very long text body", async () => {
       const schema = z.string();
 
       const longText = "a".repeat(100000);
@@ -479,7 +479,7 @@ describe("bodySchema", () => {
       expect(result.body).toBe(longText);
     });
 
-    it("TEST#2: should handle text with special characters", async () => {
+    it("TEST#1: should handle text with special characters", async () => {
       const schema = z.string();
 
       const specialText = "Hello\nWorld\tTab\r\nNewline";
@@ -496,7 +496,7 @@ describe("bodySchema", () => {
       expect(result.body).toBe(specialText);
     });
 
-    it("TEST#2: should handle text with unicode characters", async () => {
+    it("TEST#1: should handle text with unicode characters", async () => {
       const schema = z.string();
 
       const unicodeText = "Hello 世界 🌍";
@@ -515,7 +515,7 @@ describe("bodySchema", () => {
   });
 
   describe("priority and fallback", () => {
-    it("TEST#2: should prioritize JSON over formData when both are provided", async () => {
+    it("TEST#1: should prioritize JSON over formData when both are provided", async () => {
       const jsonSchema = z.object({ type: z.literal("json") });
       const formDataSchema = z.object({ type: z.literal("form") });
 
@@ -534,7 +534,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ type: "json" });
     });
 
-    it("TEST#2: should prioritize formData over text when both are provided", async () => {
+    it("TEST#1: should prioritize formData over text when both are provided", async () => {
       const formDataSchema = z.object({ type: z.literal("form") });
       const textSchema = z.string();
 
@@ -555,7 +555,7 @@ describe("bodySchema", () => {
       expect(result.body).toEqual({ type: "form" });
     });
 
-    it("TEST#2, TEST#11: should throw error when no matching content type", async () => {
+    it("TEST#1, TEST#2: should throw error when no matching content type", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -571,7 +571,7 @@ describe("bodySchema", () => {
       );
     });
 
-    it("TEST#2: should return undefined body when no schemas provided", async () => {
+    it("TEST#1: should return undefined body when no schemas provided", async () => {
       const request = new Request("https://example.com", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -586,7 +586,7 @@ describe("bodySchema", () => {
   });
 
   describe("error handling", () => {
-    it("TEST#11: should throw error when input is not Request", async () => {
+    it("TEST#2: should throw error when input is not Request", async () => {
       const schema = z.object({ value: z.string() });
       const bodySchemaInstance = bodySchema({ json: schema });
 
@@ -595,7 +595,7 @@ describe("bodySchema", () => {
       ).rejects.toThrow("Expected Request");
     });
 
-    it("TEST#2, TEST#11: should throw error when missing content-type header", async () => {
+    it("TEST#1, TEST#2: should throw error when missing content-type header", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -610,7 +610,7 @@ describe("bodySchema", () => {
       );
     });
 
-    it("TEST#2, TEST#11: should throw error when empty content-type header", async () => {
+    it("TEST#1, TEST#2: should throw error when empty content-type header", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -626,7 +626,7 @@ describe("bodySchema", () => {
       );
     });
 
-    it("TEST#2, TEST#11: should throw error when GET request has no body", async () => {
+    it("TEST#1, TEST#2: should throw error when GET request has no body", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -640,7 +640,7 @@ describe("bodySchema", () => {
       );
     });
 
-    it("TEST#2, TEST#11: should throw error when POST request has no body", async () => {
+    it("TEST#1, TEST#2: should throw error when POST request has no body", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {
@@ -654,7 +654,7 @@ describe("bodySchema", () => {
       );
     });
 
-    it("TEST#2, TEST#11: should handle request with null body", async () => {
+    it("TEST#1, TEST#2: should handle request with null body", async () => {
       const schema = z.object({ value: z.string() });
 
       const request = new Request("https://example.com", {

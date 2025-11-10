@@ -3,7 +3,7 @@ import { z } from "zod";
 import { searchParamsSchema } from "./search-params-schema";
 
 describe("searchParamsSchema", () => {
-  it("should parse valid search params", () => {
+  it("TEST#1: should parse valid search params", () => {
     const schema = z.object({
       name: z.string(),
       age: z.string(),
@@ -21,7 +21,7 @@ describe("searchParamsSchema", () => {
     });
   });
 
-  it("should handle missing search params as undefined", () => {
+  it("TEST#1: should handle missing search params as undefined", () => {
     const schema = z.object({
       name: z.string().optional(),
       age: z.string().optional(),
@@ -38,7 +38,7 @@ describe("searchParamsSchema", () => {
     });
   });
 
-  it("should throw error when input is not URLSearchParams or string", () => {
+  it("TEST#1, TEST#2: should throw error when input is not URLSearchParams or string", () => {
     const schema = z.object({
       name: z.string(),
     });
@@ -50,7 +50,7 @@ describe("searchParamsSchema", () => {
     }).toThrow("Expected URLSearchParams or string");
   });
 
-  it("should validate schema constraints", () => {
+  it("TEST#1: should validate schema constraints", () => {
     const schema = z.object({
       age: z.string().transform((val) => Number(val)),
     });
@@ -63,7 +63,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ age: 30 });
   });
 
-  it("should handle empty search params", () => {
+  it("TEST#1: should handle empty search params", () => {
     const schema = z.object({
       name: z.string().optional(),
     });
@@ -75,7 +75,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ name: undefined });
   });
 
-  it("should only extract keys defined in schema", () => {
+  it("TEST#1: should only extract keys defined in schema", () => {
     const schema = z.object({
       name: z.string(),
     });
@@ -90,7 +90,7 @@ describe("searchParamsSchema", () => {
     expect(result).not.toHaveProperty("extra");
   });
 
-  it("should handle empty string input", () => {
+  it("TEST#1: should handle empty string input", () => {
     const schema = z.object({
       name: z.string().optional(),
     });
@@ -100,7 +100,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ name: undefined });
   });
 
-  it("should handle string with query prefix", () => {
+  it("TEST#1: should handle string with query prefix", () => {
     const schema = z.object({
       name: z.string(),
       age: z.string(),
@@ -111,7 +111,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ name: "John", age: "30" });
   });
 
-  it("should handle string with only query prefix", () => {
+  it("TEST#1: should handle string with only query prefix", () => {
     const schema = z.object({
       name: z.string().optional(),
     });
@@ -121,7 +121,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ name: undefined });
   });
 
-  it("should handle URL-encoded special characters", () => {
+  it("TEST#1: should handle URL-encoded special characters", () => {
     const schema = z.object({
       query: z.string(),
       value: z.string(),
@@ -139,7 +139,7 @@ describe("searchParamsSchema", () => {
     });
   });
 
-  it("should throw error when multiple values exist but schema is not array", () => {
+  it("TEST#1, TEST#2: should throw error when multiple values exist but schema is not array", () => {
     const schema = z.object({
       tag: z.string(),
     });
@@ -153,7 +153,7 @@ describe("searchParamsSchema", () => {
     }).toThrow();
   });
 
-  it("should return array when multiple values exist and schema is array", () => {
+  it("TEST#1: should return array when multiple values exist and schema is array", () => {
     const schema = z.object({
       tag: z.array(z.string()),
     });
@@ -167,7 +167,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ tag: ["first", "second"] });
   });
 
-  it("should return array with single value when single value exists and schema is array", () => {
+  it("TEST#1: should return array with single value when single value exists and schema is array", () => {
     const schema = z.object({
       tag: z.array(z.string()),
     });
@@ -180,7 +180,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ tag: ["single"] });
   });
 
-  it("should return undefined array when no value exists and schema is array", () => {
+  it("TEST#1: should return undefined array when no value exists and schema is array", () => {
     const schema = z.object({
       tag: z.array(z.string()).optional(),
     });
@@ -192,7 +192,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ tag: undefined });
   });
 
-  it("should handle object with get method (URLSearchParams-like)", () => {
+  it("TEST#1: should handle object with get method (URLSearchParams-like)", () => {
     const schema = z.object({
       name: z.string(),
     });
@@ -206,7 +206,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ name: "John" });
   });
 
-  it("should throw error for null input", () => {
+  it("TEST#1, TEST#2: should throw error for null input", () => {
     const schema = z.object({
       name: z.string(),
     });
@@ -218,7 +218,7 @@ describe("searchParamsSchema", () => {
     }).toThrow("Expected URLSearchParams or string");
   });
 
-  it("should throw error for undefined input", () => {
+  it("TEST#1, TEST#2: should throw error for undefined input", () => {
     const schema = z.object({
       name: z.string(),
     });
@@ -230,7 +230,7 @@ describe("searchParamsSchema", () => {
     }).toThrow("Expected URLSearchParams or string");
   });
 
-  it("should handle empty string values", () => {
+  it("TEST#1: should handle empty string values", () => {
     const schema = z.object({
       empty: z.string(),
       optional: z.string().optional(),
@@ -244,7 +244,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ empty: "", optional: undefined });
   });
 
-  it("should handle very long query strings", () => {
+  it("TEST#1: should handle very long query strings", () => {
     const schema = z.object({
       long: z.string(),
     });
@@ -258,7 +258,7 @@ describe("searchParamsSchema", () => {
     expect(result).toEqual({ long: longValue });
   });
 
-  it("should handle object without get method", () => {
+  it("TEST#1, TEST#2: should handle object without get method", () => {
     const schema = z.object({
       name: z.string(),
     });
