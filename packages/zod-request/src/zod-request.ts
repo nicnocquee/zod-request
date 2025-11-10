@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+// Error message constants
+const ERROR_EXPECTED_REQUEST = "Expected Request";
+const ERROR_EXPECTED_HEADERS = "Expected Headers";
+const ERROR_EXPECTED_URL_SEARCH_PARAMS = "Expected URLSearchParams or string";
+const ERROR_UNABLE_TO_EXTRACT_BASE_SCHEMA =
+  "Unable to extract base schema from preprocessed {name} schema. This may be a Zod v4 compatibility issue.";
+const ERROR_MULTIPLE_VALUES_SINGLE_SCHEMA =
+  'Multiple values found for parameter "{key}" but schema expects a single value. Use an array schema (e.g., z.array(z.string())) to accept multiple values.';
+
 /**
  * Valid protocol values
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Request/protocol
@@ -128,15 +137,124 @@ export type RequestModeSchema =
  * @param schema - The Zod schema to validate the search params against
  * @returns A Zod schema that validates the search params of a request
  */
+function isArraySchema(fieldSchema: z.ZodTypeAny | undefined): boolean {
+  if (!fieldSchema) return false;
+  const fieldSchemaAny = fieldSchema as any;
+  return (
+    fieldSchemaAny._def?.type === "array" ||
+    fieldSchemaAny._def?.typeName === "ZodArray"
+  );
+}
+
+/**
+ * Helper function to extract the base schema from a preprocessed Zod schema
+ * In Zod v4, preprocessed schemas (ZodPipe) store the base schema in def.out
+ * @param preprocessedSchema - The preprocessed schema
+ * @returns The base schema or undefined if not found
+ */
+function extractBaseSchema(
+  preprocessedSchema: z.ZodTypeAny
+): z.ZodObject<any> | undefined {
+  const baseSchema = (preprocessedSchema as any).def?.out;
+  if (baseSchema && baseSchema.shape && typeof baseSchema.shape === "object") {
+    return baseSchema as z.ZodObject<any>;
+  }
+  return undefined;
+}
+
+/**
+ * Helper function to extract search params object from URLSearchParams
+ * @param params - The URLSearchParams or URLSearchParams-like object
+ * @param shape - The schema shape to extract keys from
+ * @returns An object with extracted search params
+ */
+function extractSearchParamsObject(
+  params:
+    | URLSearchParams
+    | {
+        get: (key: string) => string | null;
+        getAll?: (key: string) => string[];
+      },
+  shape: z.ZodRawShape
+): Record<string, string | string[] | undefined> {
+  const obj: Record<string, string | string[] | undefined> = {};
+  for (const key in shape) {
+    const fieldSchema = shape[key] as z.ZodTypeAny | undefined;
+    if (!fieldSchema) continue;
+
+    const isArray = isArraySchema(fieldSchema);
+
+    // Get all values for this key
+    let allValues: string[];
+    if (params instanceof URLSearchParams) {
+      allValues = params.getAll(key);
+    } else if (typeof params.getAll === "function") {
+      allValues = params.getAll(key);
+    } else {
+      // Fallback for URLSearchParams-like objects without getAll
+      const value = params.get(key);
+      allValues = value !== null ? [value] : [];
+    }
+
+    // If multiple values exist, require array schema
+    if (allValues.length > 1 && !isArray) {
+      throw new z.ZodError([
+        {
+          code: z.ZodIssueCode.custom,
+          path: [key],
+          message: ERROR_MULTIPLE_VALUES_SINGLE_SCHEMA.replace("{key}", key),
+        },
+      ]);
+    }
+
+    // If array schema, always return array (even if single value)
+    if (isArray) {
+      obj[key] = allValues.length > 0 ? allValues : undefined;
+    } else {
+      // Single value schema - return first value or undefined
+      obj[key] = allValues.length > 0 ? allValues[0] : undefined;
+    }
+  }
+  return obj;
+}
+
+/**
+ * Helper function to extract headers object from Headers
+ * @param headers - The Headers object
+ * @param shape - The schema shape to extract keys from
+ * @returns An object with extracted headers
+ */
+function extractHeadersObject(
+  headers: Headers | { get: (key: string) => string | null },
+  shape: z.ZodRawShape
+): Record<string, string | undefined> {
+  const obj: Record<string, string | undefined> = {};
+  for (const key in shape) {
+    const value = headers.get(key);
+    obj[key] = value ?? undefined;
+  }
+  return obj;
+}
+
+/**
+ * Create a Zod schema that validates the search params of a request
+ * @param schema - The Zod schema to validate the search params against
+ * @returns A Zod schema that validates the search params of a request
+ */
 export function searchParamsSchema<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>
 ) {
   return z.preprocess((val) => {
     if (val === null || val === undefined) {
-      throw new Error("Expected URLSearchParams or string");
+      throw new Error(ERROR_EXPECTED_URL_SEARCH_PARAMS);
     }
     // Convert to URLSearchParams - accept URLSearchParams or string (including empty string)
-    let params: URLSearchParams;
+    let params:
+      | URLSearchParams
+      | {
+          get: (key: string) => string | null;
+          getAll?: (key: string) => string[];
+        };
     if (typeof val === "string") {
       // Empty string is valid - it creates an empty URLSearchParams
       // urlObj.search includes the '?' prefix, which URLSearchParams handles correctly
@@ -153,58 +271,12 @@ export function searchParamsSchema<T extends z.ZodRawShape>(
         // It has a get method, assume it's URLSearchParams-like
         params = val as unknown as URLSearchParams;
       } else {
-        throw new Error("Expected URLSearchParams or string");
+        throw new Error(ERROR_EXPECTED_URL_SEARCH_PARAMS);
       }
     } else {
-      throw new Error("Expected URLSearchParams or string");
+      throw new Error(ERROR_EXPECTED_URL_SEARCH_PARAMS);
     }
-    const obj: Record<string, string | string[] | undefined> = {};
-    const shape = schema.shape;
-    for (const key in shape) {
-      const fieldSchema = shape[key];
-      if (!fieldSchema) continue;
-
-      // Check if the field schema is an array type
-      // In Zod v4, array schemas have _def.type === "array"
-      const fieldSchemaAny = fieldSchema as any;
-      const isArraySchema =
-        fieldSchemaAny._def?.type === "array" ||
-        fieldSchemaAny._def?.typeName === "ZodArray";
-
-      // Get all values for this key
-      let allValues: string[];
-      if (params instanceof URLSearchParams) {
-        allValues = params.getAll(key);
-      } else if (typeof (params as any).getAll === "function") {
-        allValues = (params as any).getAll(key);
-      } else {
-        // Fallback for URLSearchParams-like objects without getAll
-        const value = (params as { get: (key: string) => string | null }).get(
-          key
-        );
-        allValues = value !== null ? [value] : [];
-      }
-
-      // If multiple values exist, require array schema
-      if (allValues.length > 1 && !isArraySchema) {
-        throw new z.ZodError([
-          {
-            code: z.ZodIssueCode.custom,
-            path: [key],
-            message: `Multiple values found for parameter "${key}" but schema expects a single value. Use an array schema (e.g., z.array(z.string())) to accept multiple values.`,
-          },
-        ]);
-      }
-
-      // If array schema, always return array (even if single value)
-      if (isArraySchema) {
-        obj[key] = allValues.length > 0 ? allValues : undefined;
-      } else {
-        // Single value schema - return first value or undefined
-        obj[key] = allValues.length > 0 ? allValues[0] : undefined;
-      }
-    }
-    return obj;
+    return extractSearchParamsObject(params, schema.shape);
   }, schema);
 }
 
@@ -237,7 +309,7 @@ export function bodySchema<
   return z.preprocess(
     async (val) => {
       if (!(val instanceof Request)) {
-        throw new Error("Expected Request");
+        throw new Error(ERROR_EXPECTED_REQUEST);
       }
       const contentType = val.headers.get("content-type") ?? "";
       const hasAnySchema = !!(schemas.json || schemas.formData || schemas.text);
@@ -389,10 +461,10 @@ export function bodySchema<
 export function headersSchema<T extends z.ZodRawShape>(schema: z.ZodObject<T>) {
   return z.preprocess((val) => {
     if (val === null || val === undefined) {
-      throw new Error("Expected Headers");
+      throw new Error(ERROR_EXPECTED_HEADERS);
     }
     // Convert to Headers - accept Headers or object with get method
-    let headers: Headers;
+    let headers: Headers | { get: (key: string) => string | null };
     if (val instanceof Headers) {
       headers = val;
     } else if (val && typeof val === "object") {
@@ -405,18 +477,12 @@ export function headersSchema<T extends z.ZodRawShape>(schema: z.ZodObject<T>) {
         // It has a get method, assume it's Headers-like
         headers = val as unknown as Headers;
       } else {
-        throw new Error("Expected Headers");
+        throw new Error(ERROR_EXPECTED_HEADERS);
       }
     } else {
-      throw new Error("Expected Headers");
+      throw new Error(ERROR_EXPECTED_HEADERS);
     }
-    const obj: Record<string, string | undefined> = {};
-    const shape = schema.shape;
-    for (const key in shape) {
-      const value = headers.get(key);
-      obj[key] = value ?? undefined;
-    }
-    return obj;
+    return extractHeadersObject(headers, schema.shape);
   }, schema);
 }
 
@@ -493,14 +559,10 @@ export const requestSchema = <
   // Extract base schemas to avoid preprocessing issues in resultSchema
   // In Zod v4, preprocessed schemas (ZodPipe) store the base schema in def.out
   const searchParamsBaseSchema = searchParams
-    ? (((searchParams as z.ZodTypeAny).def as any)?.out as
-        | z.ZodObject<any>
-        | undefined)
+    ? extractBaseSchema(searchParams as z.ZodTypeAny)
     : undefined;
   const headersBaseSchema = headers
-    ? (((headers as z.ZodTypeAny).def as any)?.out as
-        | z.ZodObject<any>
-        | undefined)
+    ? extractBaseSchema(headers as z.ZodTypeAny)
     : undefined;
 
   const resultSchema = (() => {
@@ -568,7 +630,7 @@ export const requestSchema = <
 
   return z.preprocess(async (val) => {
     if (!(val instanceof Request)) {
-      throw new Error("Expected Request");
+      throw new Error(ERROR_EXPECTED_REQUEST);
     }
     const urlObj = new URL(val.url);
     // Extract search params manually to avoid preprocessing issues when calling
@@ -581,50 +643,11 @@ export const requestSchema = <
       const params = new URLSearchParams(searchString);
 
       // Access the base schema from the ZodPipe structure
-      // In Zod v4, preprocessed schemas store the base schema in def.out
-      const preprocessedSchema = searchParams as z.ZodTypeAny;
-      const baseSchema = (preprocessedSchema as any).def?.out;
+      const baseSchema = extractBaseSchema(searchParams as z.ZodTypeAny);
 
-      // Check if we have a valid ZodObject schema
-      if (
-        baseSchema &&
-        baseSchema.shape &&
-        typeof baseSchema.shape === "object"
-      ) {
+      if (baseSchema) {
         // Extract only the keys defined in the schema
-        const shape = (baseSchema as z.ZodObject<any>).shape;
-        const obj: Record<string, string | string[] | undefined> = {};
-        for (const key in shape) {
-          const fieldSchema = shape[key];
-          // Check if the field schema is an array type
-          // In Zod v4, array schemas have _def.type === "array"
-          const fieldSchemaAny = fieldSchema as any;
-          const isArraySchema =
-            fieldSchemaAny._def?.type === "array" ||
-            fieldSchemaAny._def?.typeName === "ZodArray";
-
-          // Get all values for this key
-          const allValues = params.getAll(key);
-
-          // If multiple values exist, require array schema
-          if (allValues.length > 1 && !isArraySchema) {
-            throw new z.ZodError([
-              {
-                code: z.ZodIssueCode.custom,
-                path: [key],
-                message: `Multiple values found for parameter "${key}" but schema expects a single value. Use an array schema (e.g., z.array(z.string())) to accept multiple values.`,
-              },
-            ]);
-          }
-
-          // If array schema, always return array (even if single value)
-          if (isArraySchema) {
-            obj[key] = allValues.length > 0 ? allValues : undefined;
-          } else {
-            // Single value schema - return first value or undefined
-            obj[key] = allValues.length > 0 ? allValues[0] : undefined;
-          }
-        }
+        const obj = extractSearchParamsObject(params, baseSchema.shape);
         // Validate with the base schema (not the preprocessed one)
         searchParamsObject = (await baseSchema.parseAsync(
           obj
@@ -632,8 +655,7 @@ export const requestSchema = <
       } else {
         // Fallback: if we can't access the base schema, throw a helpful error
         throw new Error(
-          "Unable to extract base schema from preprocessed searchParams schema. " +
-            "This may be a Zod v4 compatibility issue."
+          ERROR_UNABLE_TO_EXTRACT_BASE_SCHEMA.replace("{name}", "searchParams")
         );
       }
     }
@@ -657,29 +679,17 @@ export const requestSchema = <
 
     let headersObject: HeadersType | undefined;
     if (headers) {
-      const preprocessedHeadersSchema = headers as z.ZodTypeAny;
-      const baseSchema = (preprocessedHeadersSchema as any).def?.out;
+      const baseSchema = extractBaseSchema(headers as z.ZodTypeAny);
 
-      // Check if we have a valid ZodObject schema
-      if (
-        baseSchema &&
-        baseSchema.shape &&
-        typeof baseSchema.shape === "object"
-      ) {
+      if (baseSchema) {
         // Extract only the keys defined in the schema
-        const shape = (baseSchema as z.ZodObject<any>).shape;
-        const obj: Record<string, string | undefined> = {};
-        for (const key in shape) {
-          const value = val.headers.get(key);
-          obj[key] = value ?? undefined;
-        }
+        const obj = extractHeadersObject(val.headers, baseSchema.shape);
         // Validate with the base schema (not the preprocessed one)
         headersObject = (await baseSchema.parseAsync(obj)) as HeadersType;
       } else {
         // Fallback: if we can't access the base schema, throw a helpful error
         throw new Error(
-          "Unable to extract base schema from preprocessed headers schema. " +
-            "This may be a Zod v4 compatibility issue."
+          ERROR_UNABLE_TO_EXTRACT_BASE_SCHEMA.replace("{name}", "headers")
         );
       }
     }
