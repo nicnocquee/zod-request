@@ -1,0 +1,107 @@
+# zod-request
+
+A TypeScript library for validating HTTP Request objects using Zod schemas. Provides type-safe validation for all aspects of an HTTP request including URL, search parameters, body, headers, method, mode, protocol, hostname, and pathname.
+
+## Prerequisites
+
+- Node.js 18+
+- Zod 4
+
+## Installation
+
+```bash
+npm install @nicnocquee/zod-request
+```
+
+## Main API Functions
+
+### `requestSchema(options)`
+The primary function for validating HTTP Request objects. Accepts optional schemas for:
+- `searchParams` - URL search parameters validation
+- `body` - Request body validation (JSON, FormData, or text)
+- `headers` - Request headers validation
+- `method` - HTTP method validation
+- `mode` - Request mode validation
+- `protocol` - URL protocol validation
+- `hostname` - URL hostname validation (any Zod string schema)
+- `pathname` - URL pathname validation (any Zod string schema)
+
+Returns a preprocessed Zod schema that validates the entire Request object with type-safe results.
+
+### `bodySchema(schemas)`
+Validates request bodies. Supports:
+- `json` - JSON request bodies (application/json)
+- `formData` - Form data (multipart/form-data or application/x-www-form-urlencoded)
+- `text` - Plain text bodies
+
+Automatically detects content type from the Content-Type header.
+
+### `searchParamsSchema(schema)`
+Validates URL search parameters using a Zod object schema.
+
+### `headersSchema(schema)`
+Validates request headers using a Zod object schema.
+
+### Additional Schemas
+- `httpMethodSchema(method)` / `httpMethodEnumSchema()` - HTTP method validation
+- `requestModeSchema(mode)` / `requestModeEnumSchema()` - Request mode validation
+- `protocolSchema(protocol)` / `protocolEnumSchema()` - Protocol validation
+
+## Key Features
+
+1. **Type Safety**: Return types are automatically inferred based on provided schemas. Properties are only available if their corresponding schema is provided.
+
+2. **Comprehensive Validation**: Validates all aspects of an HTTP Request object in a single schema.
+
+3. **Content-Type Detection**: Automatically detects and validates body content type (JSON, FormData, text).
+
+4. **Preprocessed Schemas**: Uses Zod preprocessing to extract and validate request data before validation.
+
+5. **Type-Safe Results**: Validated results include:
+   - `url` - Parsed URL object
+   - `searchParamsObject` - Validated search parameters (if schema provided)
+   - `bodyObject` - Validated body for direct property access (if schema provided)
+   - `headersObj` - Validated headers (if schema provided)
+   - `method`, `mode`, `protocol`, `hostname`, `pathname` - Validated values (if schemas provided)
+
+## Usage Pattern
+
+```typescript
+import { requestSchema, searchParamsSchema, bodySchema } from "@nicnocquee/zod-request";
+import { z } from "zod";
+
+const schema = requestSchema({
+  searchParams: searchParamsSchema(
+    z.object({ page: z.string().optional() })
+  ),
+  body: bodySchema({
+    json: z.object({ name: z.string() }),
+  }),
+});
+
+export async function POST(request: Request) {
+  const validated = await schema.parseAsync(request);
+  // Type-safe access to validated data
+  const page = validated.searchParamsObject?.page;
+  const name = validated.bodyObject?.name;
+}
+```
+
+## Documentation
+
+- **Online Documentation**: https://nicnocquee.github.io/zod-request
+- **API Reference**: `https://nicnocquee.github.io/zod-request/api/request-schema` - Detailed API documentation
+- **Usage Guides**: `https://nicnocquee.github.io/zod-request/usage` - Step-by-step usage examples
+
+## Testing
+
+Comprehensive test suite in `https://github.com/nicnocquee/zod-request/blob/main/packages/zod-request/src/zod-request.test.ts` covering all validation scenarios.
+
+## License
+
+MIT
+
+## Author
+
+Nico Prananta (https://nico.fyi)
+
