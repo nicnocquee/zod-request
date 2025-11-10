@@ -509,9 +509,14 @@ export const requestSchema = <
     };
     const headersField = headers
       ? {
-          headers: (headersBaseSchema || z.unknown()) as z.ZodTypeAny,
+          headers: z.instanceof(Headers) as z.ZodType<Headers>,
         }
       : { headers: z.unknown().optional() };
+    const headersObjectField = headers
+      ? {
+          headersObj: (headersBaseSchema || z.unknown()) as z.ZodTypeAny,
+        }
+      : { headersObj: z.unknown().optional() };
     const searchParamsField = searchParams
       ? {
           searchParamsObject: (searchParamsBaseSchema ||
@@ -552,6 +557,7 @@ export const requestSchema = <
       ...bodyField,
       ...bodyObjectField,
       ...headersField,
+      ...headersObjectField,
       ...methodField,
       ...modeField,
       ...protocolField,
@@ -644,6 +650,11 @@ export const requestSchema = <
     // bodyObject is the unwrapped validated body value for direct property access
     const bodyObject = bodyValue;
 
+    // Store the original headers object
+    const originalHeaders: Headers | undefined = headers
+      ? val.headers
+      : undefined;
+
     let headersObject: HeadersType | undefined;
     if (headers) {
       const preprocessedHeadersSchema = headers as z.ZodTypeAny;
@@ -709,7 +720,8 @@ export const requestSchema = <
       searchParamsObject,
       body: originalBody,
       bodyObject,
-      headers: headersObject,
+      headers: originalHeaders,
+      headersObj: headersObject,
       method: methodValue,
       mode: modeValue,
       protocol: protocolValue,
@@ -737,7 +749,8 @@ export const requestSchema = <
                           ? NonNullable<B>
                           : never
                         : undefined;
-                      headers: z.infer<THeaders>;
+                      headers: Headers;
+                      headersObj: z.infer<THeaders>;
                       method: z.infer<TMethod>;
                       mode: z.infer<TMode>;
                       protocol: z.infer<TProtocol>;
@@ -758,7 +771,8 @@ export const requestSchema = <
                           ? NonNullable<B>
                           : never
                         : undefined;
-                      headers: z.infer<THeaders>;
+                      headers: Headers;
+                      headersObj: z.infer<THeaders>;
                       method: z.infer<TMethod>;
                       mode: z.infer<TMode>;
                       protocol: z.infer<TProtocol>;
@@ -777,7 +791,8 @@ export const requestSchema = <
                           ? NonNullable<B>
                           : never
                         : undefined;
-                      headers: z.infer<THeaders>;
+                      headers: Headers;
+                      headersObj: z.infer<THeaders>;
                       method: z.infer<TMethod>;
                       mode: z.infer<TMode>;
                       protocol: z.infer<TProtocol>;
@@ -796,7 +811,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     method: z.infer<TMethod>;
                     mode: z.infer<TMode>;
                     hostname: z.infer<THostname>;
@@ -816,7 +832,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     method: z.infer<TMethod>;
                     mode: z.infer<TMode>;
                     protocol: z.infer<TProtocol>;
@@ -835,7 +852,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     method: z.infer<TMethod>;
                     mode: z.infer<TMode>;
                   }
@@ -853,7 +871,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   protocol: z.infer<TProtocol>;
                   hostname: z.infer<THostname>;
@@ -871,7 +890,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   protocol: z.infer<TProtocol>;
                 }
@@ -891,7 +911,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     mode: z.infer<TMode>;
                     protocol: z.infer<TProtocol>;
                     hostname: z.infer<THostname>;
@@ -911,7 +932,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     method: z.infer<TMethod>;
                     mode: z.infer<TMode>;
                     protocol: z.infer<TProtocol>;
@@ -930,7 +952,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     mode: z.infer<TMode>;
                     protocol: z.infer<TProtocol>;
                   }
@@ -948,7 +971,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   mode: z.infer<TMode>;
                   hostname: z.infer<THostname>;
                   pathname: z.infer<TPathname>;
@@ -967,7 +991,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -986,7 +1011,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   mode: z.infer<TMode>;
                 }
             : TProtocol extends z.ZodTypeAny
@@ -1004,7 +1030,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   protocol: z.infer<TProtocol>;
                   hostname: z.infer<THostname>;
                   pathname: z.infer<TPathname>;
@@ -1023,7 +1050,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -1042,7 +1070,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   protocol: z.infer<TProtocol>;
                 }
             : THostname extends z.ZodTypeAny
@@ -1059,7 +1088,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 hostname: z.infer<THostname>;
                 pathname: z.infer<TPathname>;
               }
@@ -1077,7 +1107,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1096,7 +1127,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
               }
           : TMethod extends z.ZodTypeAny
           ? TMode extends z.ZodTypeAny
@@ -1135,7 +1167,8 @@ export const requestSchema = <
                         ? NonNullable<B>
                         : never
                       : undefined;
-                    headers: z.infer<THeaders>;
+                    headers: Headers;
+                    headersObj: z.infer<THeaders>;
                     method: z.infer<TMethod>;
                     mode: z.infer<TMode>;
                     protocol: z.infer<TProtocol>;
@@ -1191,7 +1224,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -1247,7 +1281,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -1301,7 +1336,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1357,7 +1393,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -1411,7 +1448,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1465,7 +1503,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1517,7 +1556,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -1545,7 +1585,8 @@ export const requestSchema = <
                 searchParamsObject: z.infer<TSearchParams>;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
               }
@@ -1554,7 +1595,8 @@ export const requestSchema = <
                 searchParamsObject: z.infer<TSearchParams>;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
               }
           : TMode extends z.ZodTypeAny
@@ -1563,7 +1605,8 @@ export const requestSchema = <
               searchParamsObject: z.infer<TSearchParams>;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               mode: z.infer<TMode>;
             }
           : {
@@ -1571,7 +1614,8 @@ export const requestSchema = <
               searchParamsObject: z.infer<TSearchParams>;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
             }
         : TMethod extends z.ZodTypeAny
         ? TMode extends z.ZodTypeAny
@@ -1617,7 +1661,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1655,7 +1700,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -1693,7 +1739,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -1729,7 +1776,8 @@ export const requestSchema = <
                 ? NonNullable<B>
                 : never
               : undefined;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             method: z.infer<TMethod>;
             mode: z.infer<TMode>;
             protocol: z.infer<TProtocol>;
@@ -1758,7 +1806,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
               }
@@ -1775,7 +1824,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
               }
           : TMode extends z.ZodTypeAny
@@ -1794,7 +1844,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
                   hostname: z.infer<THostname>;
@@ -1814,7 +1865,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -1833,7 +1885,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
                 }
@@ -1851,7 +1904,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 mode: z.infer<TMode>;
                 hostname: z.infer<THostname>;
                 pathname: z.infer<TPathname>;
@@ -1870,7 +1924,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1889,7 +1944,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 mode: z.infer<TMode>;
               }
           : TProtocol extends z.ZodTypeAny
@@ -1907,7 +1963,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 protocol: z.infer<TProtocol>;
                 hostname: z.infer<THostname>;
                 pathname: z.infer<TPathname>;
@@ -1926,7 +1983,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -1945,7 +2003,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 protocol: z.infer<TProtocol>;
               }
           : THostname extends z.ZodTypeAny
@@ -1962,7 +2021,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               hostname: z.infer<THostname>;
               pathname: z.infer<TPathname>;
             }
@@ -1980,7 +2040,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -1999,7 +2060,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
             }
         : TMethod extends z.ZodTypeAny
         ? TMode extends z.ZodTypeAny
@@ -2038,7 +2100,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -2094,7 +2157,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2150,7 +2214,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2204,7 +2269,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2260,7 +2326,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2314,7 +2381,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2368,7 +2436,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2420,7 +2489,8 @@ export const requestSchema = <
                 ? NonNullable<B>
                 : never
               : undefined;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             method: z.infer<TMethod>;
             mode: z.infer<TMode>;
             protocol: z.infer<TProtocol>;
@@ -2450,7 +2520,8 @@ export const requestSchema = <
                   searchParamsObject?: never;
                   body?: never;
                   bodyObject?: never;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -2471,7 +2542,8 @@ export const requestSchema = <
                       ? NonNullable<B>
                       : never
                     : undefined;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -2482,7 +2554,8 @@ export const requestSchema = <
                   searchParamsObject?: never;
                   body?: never;
                   bodyObject?: never;
-                  headers: z.infer<THeaders>;
+                  headers: Headers;
+                  headersObj: z.infer<THeaders>;
                   method: z.infer<TMethod>;
                   mode: z.infer<TMode>;
                   protocol: z.infer<TProtocol>;
@@ -2493,7 +2566,8 @@ export const requestSchema = <
                 searchParamsObject?: never;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 hostname: z.infer<THostname>;
@@ -2513,7 +2587,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2524,7 +2599,8 @@ export const requestSchema = <
                 searchParamsObject?: never;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
               }
@@ -2535,7 +2611,8 @@ export const requestSchema = <
                 searchParamsObject?: never;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 protocol: z.infer<TProtocol>;
                 hostname: z.infer<THostname>;
@@ -2555,7 +2632,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2566,7 +2644,8 @@ export const requestSchema = <
                 searchParamsObject?: never;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 protocol: z.infer<TProtocol>;
               }
@@ -2576,7 +2655,8 @@ export const requestSchema = <
               searchParamsObject?: never;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               hostname: z.infer<THostname>;
               pathname: z.infer<TPathname>;
@@ -2595,7 +2675,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2606,7 +2687,8 @@ export const requestSchema = <
               searchParamsObject?: never;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
             }
         : TMode extends z.ZodTypeAny
@@ -2617,7 +2699,8 @@ export const requestSchema = <
                 searchParamsObject?: never;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
                 hostname: z.infer<THostname>;
@@ -2637,7 +2720,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2648,7 +2732,8 @@ export const requestSchema = <
                 searchParamsObject?: never;
                 body?: never;
                 bodyObject?: never;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
               }
@@ -2658,7 +2743,8 @@ export const requestSchema = <
               searchParamsObject?: never;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               mode: z.infer<TMode>;
               hostname: z.infer<THostname>;
               pathname: z.infer<TPathname>;
@@ -2677,7 +2763,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2688,7 +2775,8 @@ export const requestSchema = <
               searchParamsObject?: never;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               mode: z.infer<TMode>;
             }
         : TProtocol extends z.ZodTypeAny
@@ -2698,7 +2786,8 @@ export const requestSchema = <
               searchParamsObject?: never;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               protocol: z.infer<TProtocol>;
               hostname: z.infer<THostname>;
               pathname: z.infer<TPathname>;
@@ -2717,7 +2806,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2728,7 +2818,8 @@ export const requestSchema = <
               searchParamsObject?: never;
               body?: never;
               bodyObject?: never;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               protocol: z.infer<TProtocol>;
             }
         : THostname extends z.ZodTypeAny
@@ -2737,7 +2828,8 @@ export const requestSchema = <
             searchParamsObject?: never;
             body?: never;
             bodyObject?: never;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             hostname: z.infer<THostname>;
             pathname: z.infer<TPathname>;
           }
@@ -2755,7 +2847,8 @@ export const requestSchema = <
                 ? NonNullable<B>
                 : never
               : undefined;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             method: z.infer<TMethod>;
             mode: z.infer<TMode>;
             protocol: z.infer<TProtocol>;
@@ -2766,7 +2859,8 @@ export const requestSchema = <
             searchParamsObject?: never;
             body?: never;
             bodyObject?: never;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
           }
       : TMethod extends z.ZodTypeAny
       ? TMode extends z.ZodTypeAny
@@ -2797,7 +2891,8 @@ export const requestSchema = <
                     ? NonNullable<B>
                     : never
                   : undefined;
-                headers: z.infer<THeaders>;
+                headers: Headers;
+                headersObj: z.infer<THeaders>;
                 method: z.infer<TMethod>;
                 mode: z.infer<TMode>;
                 protocol: z.infer<TProtocol>;
@@ -2837,7 +2932,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2877,7 +2973,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2915,7 +3012,8 @@ export const requestSchema = <
                 ? NonNullable<B>
                 : never
               : undefined;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             method: z.infer<TMethod>;
             mode: z.infer<TMode>;
             protocol: z.infer<TProtocol>;
@@ -2955,7 +3053,8 @@ export const requestSchema = <
                   ? NonNullable<B>
                   : never
                 : undefined;
-              headers: z.infer<THeaders>;
+              headers: Headers;
+              headersObj: z.infer<THeaders>;
               method: z.infer<TMethod>;
               mode: z.infer<TMode>;
               protocol: z.infer<TProtocol>;
@@ -2993,7 +3092,8 @@ export const requestSchema = <
                 ? NonNullable<B>
                 : never
               : undefined;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             method: z.infer<TMethod>;
             mode: z.infer<TMode>;
             protocol: z.infer<TProtocol>;
@@ -3031,7 +3131,8 @@ export const requestSchema = <
                 ? NonNullable<B>
                 : never
               : undefined;
-            headers: z.infer<THeaders>;
+            headers: Headers;
+            headersObj: z.infer<THeaders>;
             method: z.infer<TMethod>;
             mode: z.infer<TMode>;
             protocol: z.infer<TProtocol>;

@@ -1345,7 +1345,7 @@ describe("requestSchema", () => {
       expect(result.url.toString()).toBe("https://example.com/");
       expect(result.searchParamsObject).toBeUndefined();
       expect(result.body).toBeUndefined();
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
         "content-type": "application/json",
       });
@@ -1368,7 +1368,7 @@ describe("requestSchema", () => {
 
       const result = await schema.parseAsync(request);
 
-      expect(result.headers).toEqual({ authorization: undefined });
+      expect(result.headersObj).toEqual({ authorization: undefined });
     });
   });
 
@@ -1401,7 +1401,7 @@ describe("requestSchema", () => {
       const result = await schema.parseAsync(request);
 
       expect(result.searchParamsObject).toEqual({ filter: "active" });
-      expect(result.headers).toEqual({ authorization: "Bearer token123" });
+      expect(result.headersObj).toEqual({ authorization: "Bearer token123" });
       expect(result.body).toBeUndefined();
     });
   });
@@ -1434,7 +1434,7 @@ describe("requestSchema", () => {
 
       const result = await schema.parseAsync(request);
 
-      expect(result.headers).toEqual({ authorization: "Bearer token123" });
+      expect(result.headersObj).toEqual({ authorization: "Bearer token123" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
       expect(result.searchParamsObject).toBeUndefined();
@@ -1479,7 +1479,7 @@ describe("requestSchema", () => {
 
       const result = await schema.parseAsync(request);
 
-      expect(result.headers).toEqual({ authorization: "Bearer token123" });
+      expect(result.headersObj).toEqual({ authorization: "Bearer token123" });
       expect(result.searchParamsObject).toEqual({ filter: "active" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
@@ -1503,7 +1503,7 @@ describe("requestSchema", () => {
       expect(result.url.toString()).toBe("https://example.com/");
       expect(result.searchParamsObject).toBeUndefined();
       expect(result.body).toBeUndefined();
-      expect((result as { headers?: unknown }).headers).toBeUndefined();
+      expect((result as { headersObj?: unknown }).headersObj).toBeUndefined();
     });
   });
 
@@ -2001,7 +2001,7 @@ describe("requestSchema", () => {
       const result = await schema.parseAsync(request);
 
       expect(result.method).toBe("GET");
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
     });
@@ -2045,7 +2045,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ filter: "active" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
       // bodyObject should be the validated body
@@ -2287,7 +2287,7 @@ describe("requestSchema", () => {
       const result = await schema.parseAsync(request);
 
       expect(result.mode).toBe("no-cors");
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
     });
@@ -2351,7 +2351,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ filter: "active" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
       // bodyObject should be the validated body
@@ -2537,7 +2537,7 @@ describe("requestSchema", () => {
       const result = await schema.parseAsync(request);
 
       expect((result as any).protocol).toBe("https");
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
     });
@@ -2619,7 +2619,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ filter: "active" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
       // bodyObject should be the validated body
@@ -2803,7 +2803,7 @@ describe("requestSchema", () => {
       const result = await schema.parseAsync(request);
 
       expect(result.hostname).toBe("example.com");
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
     });
@@ -2903,7 +2903,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ filter: "active" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
       // bodyObject should be the validated body
@@ -3118,7 +3118,7 @@ describe("requestSchema", () => {
       const result = await schema.parseAsync(request);
 
       expect(result.pathname).toBe("/api/users");
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
     });
@@ -3241,7 +3241,7 @@ describe("requestSchema", () => {
       expect(result.searchParamsObject).toEqual({ filter: "active" });
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
-      expect(result.headers).toEqual({
+      expect(result.headersObj).toEqual({
         authorization: "Bearer token123",
       });
       // bodyObject should be the validated body

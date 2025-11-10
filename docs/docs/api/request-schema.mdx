@@ -134,7 +134,7 @@ export async function POST(request: Request) {
   // All validated properties are type-safe
   const id = validated.searchParamsObject.id; // string
   const data = validated.bodyObject.data; // string
-  const auth = validated.headers.authorization; // string
+  const auth = validated.headersObj.authorization; // string
   const method = validated.method; // "POST"
   const protocol = validated.protocol; // "https"
   const hostname = validated.hostname; // string (validated to include "example.com")
