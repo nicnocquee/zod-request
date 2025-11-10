@@ -29,6 +29,7 @@ export function bodySchema<
 
   return z.preprocess(
     async (val) => {
+      // TEST#11 - Error handling for non-Request input
       if (!(val instanceof Request)) {
         throw new Error(ERROR_EXPECTED_REQUEST);
       }
@@ -36,6 +37,7 @@ export function bodySchema<
       const hasAnySchema = !!(schemas.json || schemas.formData || schemas.text);
       const hasBody = val.body !== null;
 
+      // TEST#2 - JSON body processing tests
       if (schemas.json && contentType.includes("application/json")) {
         if (!hasBody) {
           throw new Error("Request body is required for JSON schema");
@@ -44,6 +46,7 @@ export function bodySchema<
         return { body: schemas.json.parse(json) as BodyType };
       }
 
+      // TEST#2 - FormData body processing tests
       if (
         schemas.formData &&
         (contentType.includes("multipart/form-data") ||
@@ -130,6 +133,7 @@ export function bodySchema<
         return { body: schemas.formData.parse(obj) as BodyType };
       }
 
+      // TEST#2 - Text body processing tests
       if (schemas.text) {
         // Check if content-type is text/* or empty (text can be used as fallback)
         const isTextContentType =
@@ -143,6 +147,7 @@ export function bodySchema<
         }
       }
 
+      // TEST#2, TEST#11 - Error handling for content-type mismatch and missing body
       // If schemas are defined but no matching content type was found, throw an error
       if (hasAnySchema) {
         if (!hasBody) {
