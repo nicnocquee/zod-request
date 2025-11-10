@@ -1145,6 +1145,7 @@ describe("requestSchema", () => {
       expect(result.url.toString()).toBe(
         "https://example.com/?name=John&age=30"
       );
+      expect(result.searchParamsObject.age).toBe("30");
       expect(result.searchParamsObject).toEqual({
         name: "John",
         age: "30",
@@ -1216,6 +1217,7 @@ describe("requestSchema", () => {
       expect(result.body).toBeInstanceOf(ReadableStream);
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
+      expect(result.bodyObject.value).toBe("test");
       expect(result.bodyObject).toEqual({ value: "test" });
     });
 
@@ -1242,6 +1244,7 @@ describe("requestSchema", () => {
       expect(result.body).toBeInstanceOf(ReadableStream);
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
+      expect(result.bodyObject.name).toBe("John");
       expect(result.bodyObject).toEqual({ name: "John" });
     });
   });
@@ -1276,6 +1279,7 @@ describe("requestSchema", () => {
       expect(result.body).toBeInstanceOf(ReadableStream);
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
+      expect(result.bodyObject.value).toBe("test");
       expect(result.bodyObject).toEqual({ value: "test" });
     });
 
@@ -1310,6 +1314,7 @@ describe("requestSchema", () => {
       expect(result.body).toBeInstanceOf(ReadableStream);
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
+      expect(result.bodyObject.name).toBe("John");
       expect(result.bodyObject).toEqual({ name: "John" });
     });
   });
@@ -1396,8 +1401,8 @@ describe("requestSchema", () => {
 
       const result = await schema.parseAsync(request);
 
-      expect(result.searchParamsObject).toEqual({ filter: "active" });
-      expect(result.headersObj).toEqual({ authorization: "Bearer token123" });
+      expect(result.searchParamsObject.filter).toEqual("active");
+      expect(result.headersObj.authorization).toEqual("Bearer token123");
       expect(result.body).toBeUndefined();
     });
   });
@@ -1430,13 +1435,13 @@ describe("requestSchema", () => {
 
       const result = await schema.parseAsync(request);
 
-      expect(result.headersObj).toEqual({ authorization: "Bearer token123" });
+      expect(result.headersObj.authorization).toEqual("Bearer token123");
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
       expect(result.searchParamsObject).toBeUndefined();
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
-      expect(result.bodyObject).toEqual({ value: "test" });
+      expect(result.bodyObject.value).toEqual("test");
     });
   });
 
@@ -1475,13 +1480,13 @@ describe("requestSchema", () => {
 
       const result = await schema.parseAsync(request);
 
-      expect(result.headersObj).toEqual({ authorization: "Bearer token123" });
-      expect(result.searchParamsObject).toEqual({ filter: "active" });
+      expect(result.headersObj.authorization).toEqual("Bearer token123");
+      expect(result.searchParamsObject.filter).toEqual("active");
       // body should be the original request body (ReadableStream or null)
       expect(result.body).toBeInstanceOf(ReadableStream);
       // bodyObject should be the validated body
       expect(result.bodyObject).toBeDefined();
-      expect(result.bodyObject).toEqual({ value: "test" });
+      expect(result.bodyObject.value).toEqual("test");
     });
   });
 
@@ -1587,6 +1592,30 @@ describe("requestSchema", () => {
       const request = new Request("https://example.com", {
         method: "GET",
         headers: { "x-api-version": "not-a-number" },
+      });
+
+      const schema = requestSchema({
+        headers,
+      });
+
+      await expect(schema.parseAsync(request)).rejects.toThrow();
+    });
+
+    it("should throw validation error for missing headers", async () => {
+      const headers = headersSchema(
+        z.object({
+          "x-api-version": z.string().transform((val) => {
+            const num = Number(val);
+            if (Number.isNaN(num)) {
+              throw new Error("Invalid number");
+            }
+            return num;
+          }),
+        })
+      );
+
+      const request = new Request("https://example.com", {
+        method: "GET",
       });
 
       const schema = requestSchema({

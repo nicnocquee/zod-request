@@ -12,8 +12,9 @@ const postRequestSchema = requestSchema({
 
 export const POST = async (request: Request) => {
   try {
-    const validated = await postRequestSchema.parseAsync(request);
-    const { url } = validated.bodyObject;
+    const {
+      bodyObject: { url },
+    } = await postRequestSchema.parseAsync(request);
     const result = await fetchShortUrl(url);
     return NextResponse.json(result);
   } catch (error) {
