@@ -23,8 +23,8 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // headersObj contains the validated headers
-  const auth = validatedRequest.headersObj?.authorization; // string
-  const contentType = validatedRequest.headersObj?.["content-type"]; // string
+  const auth = validatedRequest.headersObj.authorization; // string
+  const contentType = validatedRequest.headersObj["content-type"]; // string
 
   // headers contains the original Headers object
   const originalHeaders = validatedRequest.headers; // Headers
@@ -52,8 +52,8 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Missing headers will be undefined
-  const auth = validatedRequest.headersObj?.authorization; // string | undefined
-  const apiKey = validatedRequest.headersObj?.["x-api-key"]; // string | undefined
+  const auth = validatedRequest.headersObj.authorization; // string | undefined
+  const apiKey = validatedRequest.headersObj["x-api-key"]; // string | undefined
 }
 ```
 
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const version = validatedRequest.headersObj?.["x-api-version"]; // number
+  const version = validatedRequest.headersObj["x-api-version"]; // number
 }
 ```
 
@@ -100,8 +100,8 @@ export async function GET(request: Request) {
     headers,
   }).parseAsync(request);
 
-  const custom = validatedRequest.headersObj?.["x-custom-header"];
-  const userAgent = validatedRequest.headersObj?.["user-agent"];
+  const custom = validatedRequest.headersObj["x-custom-header"];
+  const userAgent = validatedRequest.headersObj["user-agent"];
 }
 ```
 
@@ -131,7 +131,7 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Result will use the schema key: "Authorization"
-  const auth = validatedRequest.headersObj?.Authorization;
+  const auth = validatedRequest.headersObj.Authorization;
 }
 ```
 
@@ -156,7 +156,7 @@ export async function GET(request: Request) {
   }).parseAsync(request);
 
   // Only authorization is in the result
-  const auth = validatedRequest.headersObj?.authorization;
+  const auth = validatedRequest.headersObj.authorization;
 }
 ```
 
