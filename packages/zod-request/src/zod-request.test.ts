@@ -1,16 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { z } from "zod";
-import {
-  searchParamsSchema,
-  bodySchema,
-  headersSchema,
-  httpMethodEnumSchema,
-  httpMethodSchema,
-  requestModeEnumSchema,
-  protocolEnumSchema,
-  protocolSchema,
-  requestSchema,
-} from "./zod-request";
+import { searchParamsSchema } from "./search-params-schema";
+import { headersSchema } from "./headers-schema";
+import { bodySchema } from "./body-schema";
+import { requestSchema } from "./request-schema";
+import { httpMethodSchema, httpMethodEnumSchema } from "./http-method";
+import { requestModeEnumSchema } from "./request-mode";
+import { protocolSchema, protocolEnumSchema } from "./protocol";
 
 describe("searchParamsSchema", () => {
   it("should parse valid search params", () => {

@@ -25,22 +25,23 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    ".": "./dist/zod-request.js"
+    ".": "./dist/index.js"
   },
-  "main": "./dist/zod-request.js",
+  "main": "./dist/index.js",
   "files": [
     "dist"
   ],
-  "types": "./dist/zod-request.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",
     "test": "vitest run"
   },
-  "dependencies": {
-    "zod": "^4.1.0"
+  "peerDependencies": {
+    "zod": "^4.0.0"
   },
   "devDependencies": {
+    "zod": "^4.0.0",
     "typescript": "^5.9.2",
     "vitest": "^3.0.8"
   }
