@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { z } from "zod";
 import { bodySchema } from "./body-schema";
 
@@ -426,6 +426,77 @@ describe("bodySchema", () => {
       expect(result.body.name).toBeUndefined();
       expect(result.body).toEqual({ name: undefined });
     });
+
+    it("TEST#1: should fallback to text parsing when formData() fails for urlencoded", async () => {
+      const schema = z.object({
+        name: z.string(),
+        email: z.string(),
+      });
+
+      // To trigger the fallback path (lines 76-84), we need formData() to fail
+      // but text() parsing to succeed. We'll mock formData() to throw.
+      const params = new URLSearchParams();
+      params.append("name", "John");
+      params.append("email", "john@example.com");
+      const bodyString = params.toString();
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: bodyString,
+      });
+
+      // Mock formData() to throw to trigger the fallback path
+      const formDataSpy = vi
+        .spyOn(request, "formData")
+        .mockRejectedValueOnce(new Error("formData() failed"));
+
+      const bodySchemaInstance = bodySchema({ formData: schema });
+
+      // This should work via the text() fallback path (lines 76-84)
+      const result = await bodySchemaInstance.parseAsync(request);
+      expect(result.body.name).toBe("John");
+      expect(result.body.email).toBe("john@example.com");
+
+      // Verify formData() was called and failed
+      expect(formDataSpy).toHaveBeenCalled();
+
+      formDataSpy.mockRestore();
+    });
+
+    it("TEST#1, TEST#2: should handle urlencoded when formData() fails and text parsing also fails", async () => {
+      const schema = z.object({
+        name: z.string(),
+      });
+
+      // To trigger the error path (lines 85-88), we need both formData() and text() to fail
+      // The code clones the request before calling text(), so we need to mock Request.prototype.text
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: "name=John",
+      });
+
+      // Mock formData() to throw
+      const formDataSpy = vi
+        .spyOn(request, "formData")
+        .mockRejectedValueOnce(new Error("formData() failed"));
+
+      // Mock Request.prototype.text to throw when called on the cloned request
+      const textSpy = vi
+        .spyOn(Request.prototype, "text")
+        .mockRejectedValueOnce(new Error("text() failed"));
+
+      const bodySchemaInstance = bodySchema({ formData: schema });
+
+      // This should throw the original formData error (line 87)
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "formData() failed"
+      );
+
+      formDataSpy.mockRestore();
+      textSpy.mockRestore();
+    });
   });
 
   describe("text body", () => {
@@ -686,6 +757,92 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ json: schema });
 
       await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow();
+    });
+
+    it("TEST#1, TEST#2: should throw error when JSON schema requires body but body is null", async () => {
+      const schema = z.object({ value: z.string() });
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: null,
+      });
+
+      const bodySchemaInstance = bodySchema({ json: schema });
+
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Request body is required for JSON schema"
+      );
+    });
+
+    it("TEST#1, TEST#2: should throw error when FormData schema requires body but body is null", async () => {
+      const schema = z.object({ value: z.string() });
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "multipart/form-data" },
+        body: null,
+      });
+
+      const bodySchemaInstance = bodySchema({ formData: schema });
+
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Request body is required for FormData schema"
+      );
+    });
+
+    it("TEST#1, TEST#2: should throw error when text schema requires body but body is null", async () => {
+      const schema = z.string();
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "text/plain" },
+        body: null,
+      });
+
+      const bodySchemaInstance = bodySchema({ text: schema });
+
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Request body is required for text schema"
+      );
+    });
+
+    it("TEST#1, TEST#2: should include formData expected types in content-type mismatch error", async () => {
+      const schema = z.object({ value: z.string() });
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "application/xml" },
+        body: "<xml></xml>",
+      });
+
+      const bodySchemaInstance = bodySchema({ formData: schema });
+
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Content-Type mismatch. Expected one of: multipart/form-data, application/x-www-form-urlencoded"
+      );
+    });
+
+    it("TEST#1, TEST#2: should include all expected types when multiple schemas provided", async () => {
+      const jsonSchema = z.object({ type: z.literal("json") });
+      const formDataSchema = z.object({ type: z.literal("form") });
+      const textSchema = z.string();
+
+      const request = new Request("https://example.com", {
+        method: "POST",
+        headers: { "content-type": "application/xml" },
+        body: "<xml></xml>",
+      });
+
+      const bodySchemaInstance = bodySchema({
+        json: jsonSchema,
+        formData: formDataSchema,
+        text: textSchema,
+      });
+
+      await expect(bodySchemaInstance.parseAsync(request)).rejects.toThrow(
+        "Content-Type mismatch. Expected one of: application/json, multipart/form-data, application/x-www-form-urlencoded, text/*"
+      );
     });
   });
 });
