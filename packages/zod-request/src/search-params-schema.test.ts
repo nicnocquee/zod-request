@@ -15,6 +15,9 @@ describe("searchParamsSchema", () => {
 
     const result = searchParamsSchema(schema).parse(searchParams);
 
+    // Test the properties of the search params directly to make sure the type is correct.
+    expect(result.name).toBe("John");
+    expect(result.age).toBe("30");
     expect(result).toEqual({
       name: "John",
       age: "30",

@@ -27,6 +27,10 @@ export function bodySchema<
       : never
     : undefined;
 
+  if (!schemas.json && !schemas.formData && !schemas.text) {
+    throw new Error("At least one schema must be provided");
+  }
+
   return z.preprocess(
     async (val) => {
       // TEST#2 - Error handling for non-Request input
@@ -174,7 +178,7 @@ export function bodySchema<
       return { body: undefined as BodyType };
     },
     z.object({
-      body: z.unknown().optional() as z.ZodType<BodyType | undefined>,
+      body: z.unknown() as z.ZodType<BodyType>,
     })
   );
 }

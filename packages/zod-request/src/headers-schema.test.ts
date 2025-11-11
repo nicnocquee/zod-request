@@ -15,6 +15,9 @@ describe("headersSchema", () => {
 
     const result = headersSchema(schema).parse(headers);
 
+    // Test the properties of the headers directly to make sure the type is correct.
+    expect(result.authorization).toBe("Bearer token123");
+    expect(result["content-type"]).toBe("application/json");
     expect(result).toEqual({
       authorization: "Bearer token123",
       "content-type": "application/json",

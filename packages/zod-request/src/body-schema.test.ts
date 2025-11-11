@@ -19,6 +19,9 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ json: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.age).toBe(30);
+      expect(result.body.name).toBe("John");
       expect(result.body).toEqual({ name: "John", age: 30 });
     });
 
@@ -36,6 +39,7 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ json: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      expect(result.body.value).toBe("test");
       expect(result.body).toEqual({ value: "test" });
     });
 
@@ -132,6 +136,7 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ json: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      expect(result.body.value).toBe("test");
       expect(result.body).toEqual({ value: "test" });
     });
 
@@ -193,6 +198,9 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.name).toBe("John");
+      expect(result.body.age).toBe("30");
       expect(result.body).toEqual({ name: "John", age: "30" });
     });
 
@@ -215,6 +223,9 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.name).toBe("John");
+      expect(result.body.email).toBe("john@example.com");
       expect(result.body).toEqual({
         name: "John",
         email: "john@example.com",
@@ -239,6 +250,9 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.name).toBe("John");
+      expect(result.body.file).toBeUndefined();
       expect(result.body).toEqual({ name: "John", file: undefined });
     });
 
@@ -283,6 +297,8 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.name).toBeUndefined();
       expect(result.body).toEqual({ name: undefined });
     });
 
@@ -305,7 +321,7 @@ describe("bodySchema", () => {
 
       // FormData.entries() iteration order may vary by environment
       // The implementation uses entries() which may return values in different order
-      expect(result.body).toBeDefined();
+      expect(result.body.tag).toBeDefined();
       if (result.body) {
         expect(result.body.tag).toBeDefined();
         expect(["first", "second"]).toContain(result.body.tag);
@@ -329,6 +345,9 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.empty).toBe("");
+      expect(result.body.optional).toBeUndefined();
       expect(result.body).toEqual({ empty: "", optional: undefined });
     });
 
@@ -351,6 +370,9 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.query).toBe("hello world");
+      expect(result.body.value).toBe("a+b=c&d");
       expect(result.body).toEqual({
         query: "hello world",
         value: "a+b=c&d",
@@ -377,6 +399,8 @@ describe("bodySchema", () => {
       // The implementation tries to handle it but FormData parsing requires boundary
       try {
         const result = await bodySchemaInstance.parseAsync(request);
+        // Test the properties of the body directly to make sure the type is correct.
+        expect(result.body.name).toBe("John");
         expect(result.body).toEqual({ name: "John" });
       } catch (error) {
         // If it fails, that's expected behavior for this edge case
@@ -398,6 +422,8 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ formData: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
+      expect(result.body.name).toBeUndefined();
       expect(result.body).toEqual({ name: undefined });
     });
   });
@@ -415,6 +441,7 @@ describe("bodySchema", () => {
       const bodySchemaInstance = bodySchema({ text: schema });
       const result = await bodySchemaInstance.parseAsync(request);
 
+      // Test the properties of the body directly to make sure the type is correct.
       expect(result.body).toBe("Hello, World!");
     });
 
@@ -572,16 +599,9 @@ describe("bodySchema", () => {
     });
 
     it("TEST#1: should return undefined body when no schemas provided", async () => {
-      const request = new Request("https://example.com", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ value: "test" }),
-      });
-
-      const bodySchemaInstance = bodySchema({});
-      const result = await bodySchemaInstance.parseAsync(request);
-
-      expect(result.body).toBeUndefined();
+      expect(() => bodySchema({})).toThrow(
+        "At least one schema must be provided"
+      );
     });
   });
 
